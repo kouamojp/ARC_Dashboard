@@ -63,13 +63,13 @@
         @if (synthese(); as s) {
           <dl class="row mb-0 mt-3">
             <dt class="col-7">Montant réclamé</dt>
-            <dd class="col-5 text-end">{{ s.montant_reclame | montant: '' }}</dd>
+            <dd class="col-5 text-end">{{ s.montant_reclame | montant: s.devise }}</dd>
             <dt class="col-7">Montant reconnu</dt>
-            <dd class="col-5 text-end">{{ s.montant_reconnu | montant: '' }}</dd>
+            <dd class="col-5 text-end">{{ s.montant_reconnu | montant: s.devise }}</dd>
             <dt class="col-7">Déjà versé</dt>
-            <dd class="col-5 text-end text-success">{{ s.montant_verse | montant: '' }}</dd>
+            <dd class="col-5 text-end text-success">{{ s.montant_verse | montant: s.devise }}</dd>
             <dt class="col-7">Solde restant</dt>
-            <dd class="col-5 text-end fw-bold text-danger">{{ s.solde | montant: '' }}</dd>
+            <dd class="col-5 text-end fw-bold text-danger">{{ s.solde | montant: s.devise }}</dd>
           </dl>
         }
       </div>

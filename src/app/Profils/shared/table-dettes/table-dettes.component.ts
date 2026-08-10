@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import { Dette } from '../../../core/models';
+import { DEVISE, Dette } from '../../../core/models';
 import {
   CLASSES_STATUT,
   LIBELLES_STATUT,
@@ -23,6 +23,9 @@ import {
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class TableDettesComponent {
+  /** Annoncée une fois en légende plutôt que répétée sur chaque cellule. */
+  readonly devise = DEVISE;
+
   readonly dettes = input<Dette[]>([]);
 
   /** En-tête de la colonne tiers. Null pour masquer la colonne. */
