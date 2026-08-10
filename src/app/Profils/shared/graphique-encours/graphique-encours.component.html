@@ -1,0 +1,7 @@
+@if (retenues().length) {
+  <div [style.height.px]="hauteur()">
+    <canvas baseChart type="bar" [data]="donnees()" [options]="options"></canvas>
+  </div>
+} @else {
+  <p class="text-muted text-center mb-0 py-5">Aucun encours à représenter.</p>
+}

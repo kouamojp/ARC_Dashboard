@@ -1,0 +1,38 @@
+<app-page-title
+  [heading]="'Mon portefeuille'"
+  [subheading]="'Encours et taux de recouvrement par débiteur.'"
+  [icon]="'pe-7s-portfolio text-success'">
+</app-page-title>
+
+@if (erreur()) {
+  <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+}
+
+<div class="row">
+  <div class="col-lg-7">
+    <div class="main-card mb-3 card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Débiteurs suivis</span>
+        <span class="badge bg-primary rounded-pill">{{ lignes().length }}</span>
+      </div>
+
+      @if (chargement()) {
+        <div class="card-body text-center text-muted py-5">Chargement du portefeuille…</div>
+      } @else {
+        <app-table-debiteurs
+          [lignes]="lignes()"
+          [messageVide]="'Aucun débiteur rattaché à votre portefeuille.'">
+        </app-table-debiteurs>
+      }
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="main-card mb-3 card">
+      <div class="card-header">Encours par débiteur</div>
+      <div class="card-body">
+        <app-graphique-encours [lignes]="encours()"></app-graphique-encours>
+      </div>
+    </div>
+  </div>
+</div>

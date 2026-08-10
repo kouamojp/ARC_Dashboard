@@ -60,15 +60,20 @@ export class SidebarComponent implements OnInit {
     switch (this.auth.profil()) {
       case 'debiteur':
         return [
-          {lien: '/debiteur/dashboard', libelle: 'Mon dossier', icone: 'pe-7s-graph'}
+          {lien: '/debiteur/dashboard', libelle: 'Mon dossier', icone: 'pe-7s-graph'},
+          {lien: '/debiteur/dettes', libelle: 'Mes dettes', icone: 'pe-7s-cash'}
         ];
       case 'partenaire':
         return [
-          {lien: '/partenaire/dashboard', libelle: 'Mon portefeuille', icone: 'pe-7s-portfolio'}
+          {lien: '/partenaire/dashboard', libelle: 'Tableau de bord', icone: 'pe-7s-graph'},
+          {lien: '/partenaire/debiteurs', libelle: 'Mon portefeuille', icone: 'pe-7s-portfolio'},
+          {lien: '/partenaire/dettes', libelle: 'Créances suivies', icone: 'pe-7s-cash'}
         ];
       case 'agent':
         return [
-          {lien: '/agent/dashboard', libelle: 'Mon suivi', icone: 'pe-7s-users'}
+          {lien: '/agent/dashboard', libelle: 'Tableau de bord', icone: 'pe-7s-graph'},
+          {lien: '/agent/debiteurs', libelle: 'Mes débiteurs', icone: 'pe-7s-users'},
+          {lien: '/agent/dettes', libelle: 'Dettes à recouvrer', icone: 'pe-7s-alarm'}
         ];
       default:
         return [];

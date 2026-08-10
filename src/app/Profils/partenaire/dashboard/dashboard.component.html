@@ -1,7 +1,7 @@
 <app-page-title
-  [heading]="profil()?.nom || 'Mon portefeuille'"
+  [heading]="profil()?.nom || 'Tableau de bord'"
   [subheading]="'Vos débiteurs et l\'état de vos créances.'"
-  [icon]="'pe-7s-portfolio text-success'">
+  [icon]="'pe-7s-graph text-success'">
 </app-page-title>
 
 @if (erreur()) {
@@ -10,47 +10,66 @@
 
 <app-synthese-cartes [synthese]="synthese()" [chargement]="chargement()"></app-synthese-cartes>
 
+@if (nombreEnRetard()) {
+  <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
+    <span>
+      <strong>{{ nombreEnRetard() }} créance(s) en retard</strong> dans votre portefeuille.
+    </span>
+    <a routerLink="/partenaire/dettes" class="btn btn-sm btn-warning">Voir les créances</a>
+  </div>
+}
+
 <div class="row">
-  <!-- Débiteurs suivis -->
-  <div class="col-lg-7">
+  <div class="col-lg-4">
     <div class="main-card mb-3 card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Mes débiteurs</span>
-        <span class="badge bg-primary rounded-pill">{{ debiteurs().length }}</span>
-      </div>
-      <div class="table-responsive">
-        <table class="align-middle mb-0 table table-borderless table-striped table-hover">
-          <thead>
-            <tr>
-              <th>Société</th>
-              <th>Gérant</th>
-              <th>Ville</th>
-              <th class="text-end">Contact</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (d of debiteurs(); track d.id) {
-              <tr>
-                <td><strong>{{ d.societe_debitrice }}</strong></td>
-                <td>{{ d.gerant }}</td>
-                <td>{{ d.ville }}</td>
-                <td class="text-end">{{ d.telephone }}</td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="4" class="text-center text-muted py-4">
-                  Aucun débiteur rattaché à votre portefeuille.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <div class="card-header">Avancement du recouvrement</div>
+      <div class="card-body">
+        <app-graphique-recouvrement [synthese]="synthese()"></app-graphique-recouvrement>
       </div>
     </div>
   </div>
 
-  <!-- Rapport d'activité -->
-  <div class="col-lg-5">
+  <div class="col-lg-8">
+    <div class="main-card mb-3 card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Encours par débiteur</span>
+        <a routerLink="/partenaire/debiteurs" class="btn btn-sm btn-primary">Voir le portefeuille</a>
+      </div>
+      <div class="card-body">
+        <app-graphique-encours [lignes]="encours()"></app-graphique-encours>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6">
+    <div class="main-card mb-3 card">
+      <div class="card-header">Mon entreprise</div>
+      <div class="card-body">
+        @if (profil(); as p) {
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Nom</dt>
+            <dd class="col-sm-8">{{ p.nom }}</dd>
+            <dt class="col-sm-4">Secteur</dt>
+            <dd class="col-sm-8">{{ p.secteur }}</dd>
+            <dt class="col-sm-4">Adresse</dt>
+            <dd class="col-sm-8">{{ p.adresse }}</dd>
+            <dt class="col-sm-4">Ville</dt>
+            <dd class="col-sm-8">{{ p.ville }}</dd>
+            <dt class="col-sm-4">Téléphone</dt>
+            <dd class="col-sm-8">{{ p.telephone }}</dd>
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">{{ p.email }}</dd>
+          </dl>
+        } @else {
+          <p class="text-muted mb-0">Chargement…</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
     <div class="main-card mb-3 card">
       <div class="card-header">Rapport d'activité</div>
       <div class="card-body">
