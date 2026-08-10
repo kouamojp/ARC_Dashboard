@@ -43,7 +43,6 @@ import {HeaderComponent} from './Layout/Components/header/header.component';
 import {SearchBoxComponent} from './Layout/Components/header/elements/search-box/search-box.component';
 import {UserBoxComponent} from './Layout/Components/header/elements/user-box/user-box.component';
 import {NotificationsBoxComponent} from './Layout/Components/header/elements/notifications-box/notifications-box';
-import {MessagesBoxComponent} from './Layout/Components/header/elements/messages-box/messages-box';
 
 // SIDEBAR
 import {SidebarComponent} from './Layout/Components/sidebar/sidebar.component';
@@ -69,7 +68,6 @@ import {ThemeOptions} from './theme-options';
     SearchBoxComponent,
     UserBoxComponent,
     NotificationsBoxComponent,
-    MessagesBoxComponent,
 
     // SIDEBAR
     SidebarComponent,
