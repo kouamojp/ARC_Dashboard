@@ -218,7 +218,4 @@ For questions and support:
 
 ---
 
-Made with care by the DashboardPack team. Built on the foundation of Angular, Bootstrap, and modern web technologies.#   A R C _ D a s h b o a r d  
- #   A R C _ D a s h b o a r d  
- #   A R C _ D a s h b o a r d  
- 
+Made with care by the DashboardPack team. Built on the foundation of Angular, Bootstrap, and modern web technologies.
