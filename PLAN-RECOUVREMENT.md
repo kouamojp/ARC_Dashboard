@@ -2,6 +2,9 @@
 
 > **Objectif de la phase 1** : permettre aux **débiteurs**, **partenaires** et **agents** de se connecter
 > depuis le dashboard Angular et de consulter leurs propres informations.
+>
+> **Phase 1 terminée.** Les six lots sont livrés et vérifiés en navigateur réel.
+> Voir « Reste à traiter » en fin de document pour la suite.
 
 | | |
 |---|---|
@@ -20,7 +23,7 @@
 | **2** | Endpoints métier cloisonnés | ✅ Fait |
 | **3** | Fondations Angular (core, guards, interceptor) | ✅ Fait |
 | **4** | Connexion et routage par profil | ✅ Fait |
-| **5** | Écrans métier par profil | ⬜ À faire |
+| **5** | Écrans métier par profil | ✅ Fait |
 
 ---
 
@@ -287,12 +290,43 @@ déconnexion. Aucune erreur console. `ng build`, `ng lint` et 26 tests unitaires
   responsive) : les badges de comptage passaient à la ligne. Remplacée par les utilitaires
   Bootstrap `d-flex justify-content-between`.
 
-### Lot 5 — Écrans métier
+### Lot 5 — Écrans métier ✅ *(fait)*
 
-- **Débiteur** — synthèse des dettes (réclamé / reconnu / versé / solde), tableau avec
-  échéances, fiche partenaires, contact agent
-- **Partenaire** — portefeuille de débiteurs, encours, taux de recouvrement (Chart.js), rapport
-- **Agent** — débiteurs assignés, dettes en retard, indicateurs de performance
+Onze écrans au total, servis par quatre briques partagées.
+
+| Profil | Écrans |
+|---|---|
+| Débiteur | `dashboard` (identité, agent, partenaires, anneau d'avancement) · `dettes` |
+| Partenaire | `dashboard` (anneau + encours + rapport) · `debiteurs` · `dettes` |
+| Agent | `dashboard` (4 indicateurs + anneau + encours) · `debiteurs` · `dettes` |
+
+#### Briques partagées
+
+- `statut-dette.ts` — une dette est **soldée** si son solde est nul, **en retard** si son
+  échéance est passée, **en cours** sinon. Une échéance absente ou illisible ne bascule
+  jamais en retard : le champ est une chaîne libre côté MongoDB
+- `consolidation.ts` — agrégation des dettes par débiteur (montants, taux, retards),
+  faite côté client puisque l'API renvoie les dettes à plat et que les volumes sont modestes
+- `TableDettesComponent` — tableau commun aux trois profils, avec colonne tiers
+  paramétrable, barre d'avancement par ligne, badge de statut et jours de retard
+- `TableDebiteursComponent` — tableau consolidé partagé par le partenaire et l'agent
+- `GraphiqueRecouvrementComponent` (anneau versé / restant dû) et
+  `GraphiqueEncoursComponent` (barres horizontales, triées, plafonnées à 10 tiers)
+
+#### Fonctionnalités
+
+Filtres par statut avec compteurs sur les trois pages de dettes. L'agent ouvre sur
+**En retard**, trié par ancienneté puis par montant, avec bandeau du montant immobilisé.
+Ses indicateurs : dettes en retard, montant immobilisé, sociétés à relancer, dossiers soldés,
+retard le plus ancien.
+
+#### Validation
+
+12 tests unitaires ajoutés sur `statutDe`, `joursDeRetard` et `consoliderParDebiteur`
+(**38 au total**), plus un parcours navigateur sur une fixture enrichie — dettes en retard,
+soldée, à échéance future et à échéance illisible. Chiffres vérifiés de bout en bout :
+101 et 148 jours de retard, 1 150 000 immobilisés, encours 1 400 000 / 550 000, taux
+36,4 % et 8,3 %. Aucune erreur console. `ng build` et `ng lint` au vert.
 
 ---
 
@@ -323,7 +357,23 @@ compromis et renouvelé.
 
 ---
 
-## 7. Questions ouvertes
+## 7. Reste à traiter
+
+Aucun de ces points n'est bloquant pour la phase 1, mais tous comptent avant une mise
+en production.
+
+| Sujet | Détail |
+|---|---|
+| **Rattachement `agent_id`** | Aucun débiteur réel n'a d'agent assigné. Tant que ce n'est pas saisi dans Backpack, l'espace agent reste vide sur les vraies données. |
+| **`environment.prod.ts`** | `apiUrl` vaut `/api`, un placeholder relatif. À faire pointer vers l'API de production. |
+| **Vitrine du template** | Les pages de démonstration ArchitectUI restent routées et publiques. À retirer. |
+| **Règle SCSS globale** | `.widget-heading { color: #495057 }` dans `_header-dropdowns.scss` s'applique à toute l'application alors que c'est un style de header. Contournée, pas corrigée. |
+| **Validation débiteur** | `CRUD::setValidation(DebiteurRequest::class)` est toujours commenté dans `DebiteurCrudController.php`. Le bug fatal qui le motivait est corrigé, la ligne peut être réactivée et testée. |
+| **Laravel 7 en fin de vie** | `composer audit` signale 15 advisories sur 3 paquets. Migration à planifier. |
+| **Comptes sans mot de passe** | 1 débiteur et 1 agent réels n'ont pas de mot de passe et ne peuvent donc pas se connecter. |
+| **Reçus** | La collection `recus` existe et est vide ; aucun endpoint ni écran ne l'expose. |
+
+## 8. Questions ouvertes
 
 1. **Inscription** — comptes créés uniquement par l'admin via Backpack, ou auto-inscription
    attendue ? En l'absence de réponse, le lot 4 a **retiré `register-boxed` du routage**
