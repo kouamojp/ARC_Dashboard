@@ -1,0 +1,52 @@
+<app-page-title
+  [heading]="'Mes débiteurs'"
+  [subheading]="'Situation consolidée de chaque société qui vous est assignée.'"
+  [icon]="'pe-7s-users text-success'">
+</app-page-title>
+
+@if (erreur()) {
+  <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+}
+
+@if (!chargement() && !lignes().length) {
+  <div class="alert alert-info" role="alert">
+    Aucun débiteur ne vous est assigné. Le rattachement se fait depuis l'administration,
+    en renseignant l'agent de recouvrement sur la fiche de chaque débiteur.
+  </div>
+}
+
+@if (aRelancer().length) {
+  <div class="alert alert-warning" role="alert">
+    <strong>{{ aRelancer().length }} société(s) à relancer</strong> —
+    elles cumulent au moins une échéance dépassée.
+  </div>
+}
+
+<div class="row">
+  <div class="col-lg-7">
+    <div class="main-card mb-3 card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Débiteurs assignés</span>
+        <span class="badge bg-primary rounded-pill">{{ lignes().length }}</span>
+      </div>
+
+      @if (chargement()) {
+        <div class="card-body text-center text-muted py-5">Chargement de vos débiteurs…</div>
+      } @else {
+        <app-table-debiteurs
+          [lignes]="lignes()"
+          [messageVide]="'Aucun débiteur assigné.'">
+        </app-table-debiteurs>
+      }
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="main-card mb-3 card">
+      <div class="card-header">Encours par débiteur</div>
+      <div class="card-body">
+        <app-graphique-encours [lignes]="encours()"></app-graphique-encours>
+      </div>
+    </div>
+  </div>
+</div>

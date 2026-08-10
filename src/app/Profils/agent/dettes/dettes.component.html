@@ -1,0 +1,63 @@
+<app-page-title
+  [heading]="'Dettes à recouvrer'"
+  [subheading]="'Priorisées par ancienneté du retard, puis par montant.'"
+  [icon]="'pe-7s-alarm text-danger'">
+</app-page-title>
+
+@if (erreur()) {
+  <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+}
+
+@if (compteurs().en_retard) {
+  <div class="alert alert-danger d-flex align-items-center" role="alert">
+    <i class="pe-7s-attention me-2 fs-4"></i>
+    <span>
+      <strong>{{ compteurs().en_retard }} dette(s) en retard</strong>
+      immobilisent {{ montantEnRetard() | montant }}.
+    </span>
+  </div>
+}
+
+<div class="main-card mb-3 card">
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <span>Suivi des dettes</span>
+    <div class="btn-group btn-group-sm" role="group" aria-label="Filtrer les dettes">
+      <button type="button" class="btn"
+              [class.btn-danger]="filtre() === 'en_retard'"
+              [class.btn-outline-danger]="filtre() !== 'en_retard'"
+              (click)="filtre.set('en_retard')">
+        En retard ({{ compteurs().en_retard }})
+      </button>
+      <button type="button" class="btn"
+              [class.btn-primary]="filtre() === 'en_cours'"
+              [class.btn-outline-primary]="filtre() !== 'en_cours'"
+              (click)="filtre.set('en_cours')">
+        En cours ({{ compteurs().en_cours }})
+      </button>
+      <button type="button" class="btn"
+              [class.btn-success]="filtre() === 'soldee'"
+              [class.btn-outline-success]="filtre() !== 'soldee'"
+              (click)="filtre.set('soldee')">
+        Soldées ({{ compteurs().soldee }})
+      </button>
+      <button type="button" class="btn"
+              [class.btn-primary]="filtre() === 'toutes'"
+              [class.btn-outline-primary]="filtre() !== 'toutes'"
+              (click)="filtre.set('toutes')">
+        Toutes ({{ compteurs().toutes }})
+      </button>
+    </div>
+  </div>
+
+  @if (chargement()) {
+    <div class="card-body text-center text-muted py-5">Chargement des dettes suivies…</div>
+  } @else {
+    <app-table-dettes
+      [dettes]="dettesAffichees()"
+      [libelleTiers]="'Débiteur'"
+      [nomsTiers]="nomsDebiteurs()"
+      [cleTiers]="'debiteur_id'"
+      [messageVide]="'Aucune dette dans cette catégorie.'">
+    </app-table-dettes>
+  }
+</div>

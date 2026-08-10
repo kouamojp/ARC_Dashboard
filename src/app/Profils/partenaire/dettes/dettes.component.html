@@ -1,0 +1,53 @@
+<app-page-title
+  [heading]="'Créances suivies'"
+  [subheading]="'Toutes les dettes que vous portez, tous débiteurs confondus.'"
+  [icon]="'pe-7s-cash text-success'">
+</app-page-title>
+
+@if (erreur()) {
+  <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+}
+
+<div class="main-card mb-3 card">
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <span>Détail des créances</span>
+    <div class="btn-group btn-group-sm" role="group" aria-label="Filtrer les créances">
+      <button type="button" class="btn"
+              [class.btn-primary]="filtre() === 'toutes'"
+              [class.btn-outline-primary]="filtre() !== 'toutes'"
+              (click)="filtre.set('toutes')">
+        Toutes ({{ compteurs().toutes }})
+      </button>
+      <button type="button" class="btn"
+              [class.btn-primary]="filtre() === 'en_cours'"
+              [class.btn-outline-primary]="filtre() !== 'en_cours'"
+              (click)="filtre.set('en_cours')">
+        En cours ({{ compteurs().en_cours }})
+      </button>
+      <button type="button" class="btn"
+              [class.btn-danger]="filtre() === 'en_retard'"
+              [class.btn-outline-danger]="filtre() !== 'en_retard'"
+              (click)="filtre.set('en_retard')">
+        En retard ({{ compteurs().en_retard }})
+      </button>
+      <button type="button" class="btn"
+              [class.btn-success]="filtre() === 'soldee'"
+              [class.btn-outline-success]="filtre() !== 'soldee'"
+              (click)="filtre.set('soldee')">
+        Soldées ({{ compteurs().soldee }})
+      </button>
+    </div>
+  </div>
+
+  @if (chargement()) {
+    <div class="card-body text-center text-muted py-5">Chargement des créances…</div>
+  } @else {
+    <app-table-dettes
+      [dettes]="dettesAffichees()"
+      [libelleTiers]="'Débiteur'"
+      [nomsTiers]="nomsDebiteurs()"
+      [cleTiers]="'debiteur_id'"
+      [messageVide]="'Aucune créance dans cette catégorie.'">
+    </app-table-dettes>
+  }
+</div>

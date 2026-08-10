@@ -1,0 +1,62 @@
+<div class="table-responsive">
+  <table class="align-middle mb-0 table table-borderless table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Intitulé</th>
+        @if (libelleTiers()) {
+          <th>{{ libelleTiers() }}</th>
+        }
+        <th class="text-end">Réclamé</th>
+        <th class="text-end">Reconnu</th>
+        <th class="text-end">Versé</th>
+        <th class="text-end">Solde</th>
+        <th style="min-width: 120px;">Avancement</th>
+        <th>Échéance</th>
+        <th class="text-center">Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (dette of dettes(); track dette.id) {
+        <tr>
+          <td>
+            <strong>{{ dette.intitule }}</strong>
+            @if (dette.dernier_versement) {
+              <small class="text-muted d-block">Dernier versement : {{ dette.dernier_versement }}</small>
+            }
+          </td>
+          @if (libelleTiers()) {
+            <td>{{ nomTiers(dette) }}</td>
+          }
+          <td class="text-end">{{ dette.montant_reclame | montant: '' }}</td>
+          <td class="text-end">{{ dette.montant_reconnu | montant: '' }}</td>
+          <td class="text-end text-success">{{ dette.montant_verse | montant: '' }}</td>
+          <td class="text-end fw-bold" [class.text-danger]="dette.solde > 0">
+            {{ dette.solde | montant: '' }}
+          </td>
+          <td>
+            <div class="progress progress-bar-sm" role="progressbar"
+                 [attr.aria-valuenow]="progression(dette)" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar bg-success" [style.width.%]="progression(dette)"></div>
+            </div>
+            <small class="text-muted">{{ progression(dette) }} %</small>
+          </td>
+          <td>
+            {{ dette.date_echeance_mensuelle || '—' }}
+            @if (retard(dette); as jours) {
+              <small class="text-danger d-block">{{ jours }} jour(s) de retard</small>
+            }
+          </td>
+          <td class="text-center">
+            <span class="badge" [ngClass]="classeStatut(dette)">{{ libelleStatut(dette) }}</span>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td [attr.colspan]="libelleTiers() ? 9 : 8" class="text-center text-muted py-4">
+            {{ messageVide() }}
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
