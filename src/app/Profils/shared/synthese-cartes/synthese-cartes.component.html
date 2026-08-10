@@ -1,0 +1,91 @@
+@if (chargement()) {
+  <div class="row">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="col-md-6 col-xl-3">
+        <div class="card mb-3 widget-content">
+          <div class="widget-content-wrapper">
+            <div class="widget-content-left">
+              <div class="widget-heading placeholder-glow">
+                <span class="placeholder col-7"></span>
+              </div>
+              <div class="widget-subheading placeholder-glow">
+                <span class="placeholder col-5"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+} @else if (synthese(); as s) {
+  <div class="row">
+    <div class="col-md-6 col-xl-3">
+      <div class="card mb-3 widget-content bg-midnight-bloom">
+        <div class="widget-content-wrapper text-white">
+          <div class="widget-content-left">
+            <div class="widget-heading text-white">Montant réclamé</div>
+            <div class="widget-subheading text-white opacity-75">Sur {{ s.nombre_dettes }} dette(s)</div>
+          </div>
+          <div class="widget-content-right">
+            <div class="widget-numbers text-white"><span>{{ s.montant_reclame | montant: '' }}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+      <div class="card mb-3 widget-content bg-arielle-smile">
+        <div class="widget-content-wrapper text-white">
+          <div class="widget-content-left">
+            <div class="widget-heading text-white">Montant reconnu</div>
+            <div class="widget-subheading text-white opacity-75">Base de recouvrement</div>
+          </div>
+          <div class="widget-content-right">
+            <div class="widget-numbers text-white"><span>{{ s.montant_reconnu | montant: '' }}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+      <div class="card mb-3 widget-content bg-grow-early">
+        <div class="widget-content-wrapper text-white">
+          <div class="widget-content-left">
+            <div class="widget-heading text-white">Déjà versé</div>
+            <div class="widget-subheading text-white opacity-75">{{ s.taux_recouvrement }} % du reconnu</div>
+          </div>
+          <div class="widget-content-right">
+            <div class="widget-numbers text-white"><span>{{ s.montant_verse | montant: '' }}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+      <div class="card mb-3 widget-content bg-love-kiss">
+        <div class="widget-content-wrapper text-white">
+          <div class="widget-content-left">
+            <div class="widget-heading text-white">Solde restant</div>
+            <div class="widget-subheading text-white opacity-75">Reconnu moins versé</div>
+          </div>
+          <div class="widget-content-right">
+            <div class="widget-numbers text-white"><span>{{ s.solde | montant: '' }}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex align-items-center mb-4">
+    <div class="flex-grow-1">
+      <div class="progress progress-bar-sm" role="progressbar"
+           [attr.aria-valuenow]="s.taux_recouvrement" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-success" [style.width.%]="s.taux_recouvrement"></div>
+      </div>
+    </div>
+    <div class="ms-3 text-nowrap">
+      <strong>{{ s.taux_recouvrement }} %</strong>
+      <span class="text-muted small ms-1">recouvré</span>
+    </div>
+  </div>
+}

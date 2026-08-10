@@ -1,0 +1,84 @@
+<app-page-title
+  [heading]="profil()?.societe_debitrice || 'Mon dossier'"
+  [subheading]="'Situation de vos dettes et interlocuteurs.'"
+  [icon]="'pe-7s-graph text-success'">
+</app-page-title>
+
+@if (erreur()) {
+  <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+}
+
+<app-synthese-cartes [synthese]="synthese()" [chargement]="chargement()"></app-synthese-cartes>
+
+<div class="row">
+  <!-- Identité -->
+  <div class="col-lg-6">
+    <div class="main-card mb-3 card">
+      <div class="card-header">Mon entreprise</div>
+      <div class="card-body">
+        @if (profil(); as d) {
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Société</dt>
+            <dd class="col-sm-8">{{ d.societe_debitrice }}</dd>
+            <dt class="col-sm-4">Gérant</dt>
+            <dd class="col-sm-8">{{ d.gerant }}</dd>
+            <dt class="col-sm-4">Ville</dt>
+            <dd class="col-sm-8">{{ d.ville }}</dd>
+            <dt class="col-sm-4">Localisation</dt>
+            <dd class="col-sm-8">{{ d.localisation }}</dd>
+            <dt class="col-sm-4">Téléphone</dt>
+            <dd class="col-sm-8">{{ d.telephone }}</dd>
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">{{ d.email }}</dd>
+          </dl>
+        } @else {
+          <p class="text-muted mb-0">Chargement…</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent de recouvrement -->
+  <div class="col-lg-6">
+    <div class="main-card mb-3 card">
+      <div class="card-header">Mon agent de recouvrement</div>
+      <div class="card-body">
+        @if (agent(); as a) {
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Nom</dt>
+            <dd class="col-sm-8">{{ a.prenom }} {{ a.nom }}</dd>
+            <dt class="col-sm-4">Téléphone</dt>
+            <dd class="col-sm-8">{{ a.telephone }}</dd>
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8"><a href="mailto:{{ a.email }}">{{ a.email }}</a></dd>
+          </dl>
+        } @else {
+          <p class="text-muted mb-0">
+            Aucun agent ne vous est assigné pour le moment.
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="main-card mb-3 card">
+      <div class="card-header">Mes partenaires</div>
+      <div class="card-body">
+        @if (partenaires().length) {
+          <ul class="list-group list-group-flush">
+            @for (p of partenaires(); track p.id) {
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>
+                  <strong>{{ p.nom }}</strong>
+                  <small class="text-muted d-block">{{ p.secteur }} — {{ p.ville }}</small>
+                </span>
+                <span class="text-muted small">{{ p.telephone }}</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="text-muted mb-0">Aucun partenaire rattaché à votre dossier.</p>
+        }
+      </div>
+    </div>
+  </div>
+</div>

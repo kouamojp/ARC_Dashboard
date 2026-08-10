@@ -1,0 +1,95 @@
+<app-page-title
+  [heading]="profil() ? profil()!.prenom + ' ' + profil()!.nom : 'Mon suivi'"
+  [subheading]="'Débiteurs assignés et dettes en cours de recouvrement.'"
+  [icon]="'pe-7s-users text-success'">
+</app-page-title>
+
+@if (erreur()) {
+  <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+}
+
+<app-synthese-cartes [synthese]="synthese()" [chargement]="chargement()"></app-synthese-cartes>
+
+@if (!chargement() && !debiteurs().length) {
+  <div class="alert alert-info" role="alert">
+    Aucun débiteur ne vous est assigné. Le rattachement se fait depuis l'administration,
+    en renseignant l'agent de recouvrement sur la fiche de chaque débiteur.
+  </div>
+}
+
+<div class="row">
+  <!-- Débiteurs assignés -->
+  <div class="col-lg-5">
+    <div class="main-card mb-3 card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Débiteurs assignés</span>
+        <span class="badge bg-primary rounded-pill">{{ debiteurs().length }}</span>
+      </div>
+      <div class="table-responsive">
+        <table class="align-middle mb-0 table table-borderless table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Société</th>
+              <th>Ville</th>
+              <th class="text-end">Contact</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of debiteurs(); track d.id) {
+              <tr>
+                <td>
+                  <strong>{{ d.societe_debitrice }}</strong>
+                  <small class="text-muted d-block">{{ d.gerant }}</small>
+                </td>
+                <td>{{ d.ville }}</td>
+                <td class="text-end">{{ d.telephone }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="text-center text-muted py-4">Aucun débiteur assigné.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dettes en cours -->
+  <div class="col-lg-7">
+    <div class="main-card mb-3 card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Dettes à recouvrer</span>
+        <span class="badge bg-warning text-dark rounded-pill">{{ dettesEnCours().length }}</span>
+      </div>
+      <div class="table-responsive">
+        <table class="align-middle mb-0 table table-borderless table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Intitulé</th>
+              <th>Débiteur</th>
+              <th class="text-end">Solde</th>
+              <th class="text-end">Échéance</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (dette of dettesEnCours(); track dette.id) {
+              <tr>
+                <td>{{ dette.intitule }}</td>
+                <td>{{ societeDe(dette.debiteur_id) }}</td>
+                <td class="text-end text-danger fw-bold">{{ dette.solde | montant: '' }}</td>
+                <td class="text-end">{{ dette.date_echeance_mensuelle || '—' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center text-muted py-4">
+                  Aucune dette en cours de recouvrement.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

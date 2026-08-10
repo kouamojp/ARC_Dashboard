@@ -1,0 +1,37 @@
+@if (auth.estConnecte()) {
+  <div class="header-btn-lg d-flex align-items-center">
+    <div class="widget-content-left me-2 text-end">
+      <div class="widget-heading">{{ auth.nomAffiche() }}</div>
+      <div class="widget-subheading">{{ libellesProfils[auth.profil()!] }}</div>
+    </div>
+    <div ngbDropdown placement="bottom-right">
+      <button type="button" class="btn btn-link p-0" ngbDropdownToggle>
+        <img width="42" src="./assets/images/avatars/1.jpg" alt="" class="rounded-circle">
+      </button>
+      <div ngbDropdownMenu class="dropdown-menu-sm">
+        <div class="dropdown-header text-center">
+          <img src="./assets/images/avatars/1.jpg" alt="" class="rounded-circle mb-2" width="60">
+          <h6 class="mb-0">{{ auth.nomAffiche() }}</h6>
+          <small class="text-muted">{{ email() }}</small>
+        </div>
+        <div class="dropdown-divider"></div>
+        <button
+          type="button"
+          class="dropdown-item text-danger d-flex align-items-center"
+          [disabled]="deconnexionEnCours()"
+          (click)="seDeconnecter()">
+          <i class="pe-7s-power me-2"></i>
+          @if (deconnexionEnCours()) {
+            Déconnexion…
+          } @else {
+            Se déconnecter
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="header-btn-lg d-flex align-items-center">
+    <a routerLink="/pages/login-boxed" class="btn btn-primary">Se connecter</a>
+  </div>
+}

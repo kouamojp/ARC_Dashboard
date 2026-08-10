@@ -1,0 +1,84 @@
+<app-page-title
+  [heading]="profil()?.nom || 'Mon portefeuille'"
+  [subheading]="'Vos débiteurs et l\'état de vos créances.'"
+  [icon]="'pe-7s-portfolio text-success'">
+</app-page-title>
+
+@if (erreur()) {
+  <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+}
+
+<app-synthese-cartes [synthese]="synthese()" [chargement]="chargement()"></app-synthese-cartes>
+
+<div class="row">
+  <!-- Débiteurs suivis -->
+  <div class="col-lg-7">
+    <div class="main-card mb-3 card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Mes débiteurs</span>
+        <span class="badge bg-primary rounded-pill">{{ debiteurs().length }}</span>
+      </div>
+      <div class="table-responsive">
+        <table class="align-middle mb-0 table table-borderless table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Société</th>
+              <th>Gérant</th>
+              <th>Ville</th>
+              <th class="text-end">Contact</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of debiteurs(); track d.id) {
+              <tr>
+                <td><strong>{{ d.societe_debitrice }}</strong></td>
+                <td>{{ d.gerant }}</td>
+                <td>{{ d.ville }}</td>
+                <td class="text-end">{{ d.telephone }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center text-muted py-4">
+                  Aucun débiteur rattaché à votre portefeuille.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rapport d'activité -->
+  <div class="col-lg-5">
+    <div class="main-card mb-3 card">
+      <div class="card-header">Rapport d'activité</div>
+      <div class="card-body">
+        @if (rapport(); as r) {
+          <dl class="row mb-0">
+            <dt class="col-7">Créance suivie</dt>
+            <dd class="col-5 text-end">{{ r.montant_creance | montant: '' }}</dd>
+            <dt class="col-7">Dossiers transmis</dt>
+            <dd class="col-5 text-end">{{ r.nbre_dossier_transmi }}</dd>
+            <dt class="col-7">Dossiers actifs</dt>
+            <dd class="col-5 text-end">{{ r.nbre_dossier_actif }}</dd>
+            <dt class="col-7">Dossiers localisés</dt>
+            <dd class="col-5 text-end">{{ r.nbre_dossier_localiser }}</dd>
+            <dt class="col-7">Dossiers en paiement</dt>
+            <dd class="col-5 text-end">{{ r.nbre_dossier_payement }}</dd>
+            <dt class="col-7">Négociations en cours</dt>
+            <dd class="col-5 text-end">{{ r.negoc_en_cours }}</dd>
+            <dt class="col-7">Protocoles signés</dt>
+            <dd class="col-5 text-end">{{ r.protocol_signe }}</dd>
+          </dl>
+          @if (r.commentaire) {
+            <hr>
+            <p class="text-muted mb-0 small">{{ r.commentaire }}</p>
+          }
+        } @else {
+          <p class="text-muted mb-0">Aucun rapport n'a encore été produit pour votre compte.</p>
+        }
+      </div>
+    </div>
+  </div>
+</div>
