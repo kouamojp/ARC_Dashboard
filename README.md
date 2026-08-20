@@ -1,224 +1,312 @@
-# ArchitectUI Angular - Free Admin Dashboard Template
+# Arcréances — front-end
 
-**A modern, responsive admin dashboard template built with Angular 22, Bootstrap 5, and Chart.js**
+Tableau de bord Angular de l'application de recouvrement **Arcréances**. Il consomme
+l'API du projet Laravel `recouvrement-app` et donne à chaque profil métier — débiteur,
+partenaire, agent de recouvrement — un espace où consulter son propre dossier.
 
-ArchitectUI Angular is a professional admin dashboard template perfect for building modern web applications, SaaS platforms, and administrative interfaces. This free version provides a solid foundation with essential components and features to get your project started quickly.
-
-## Features
-
-- **Angular 22 Zoneless** - Built with the latest Angular framework, fully zoneless for maximum performance
-- **Bootstrap 5.3.8** - Loaded directly from npm with theme variable overrides; no vendored copy to maintain
-- **Font Awesome 7** - Latest icon set via `@fortawesome/fontawesome-free@7`, no v4 compatibility shim
-- **Interactive Charts** - Powered by Chart.js v4 with ng2-charts v10
-- **NgRx State Management** - Centralized, type-safe state management for theme configuration
-- **Angular Signals everywhere** - Shared UI state and `viewChild()` queries use signals for true zoneless reactivity
-- **TypeScript 6.0** - Type-safe development experience
-- **Vite + esbuild build** - Fast dev server and builds via `@angular/build`; zero webpack in the dependency tree
-- **ESLint 10 (flat config)** - Modern code linting via `eslint.config.js` with angular-eslint
-- **Mobile Responsive** - Optimized for all device sizes
-- **98% Smaller Polyfills** - Reduced from 91KB to 1.6KB by removing zone.js
-- **Clean security audit** - `npm audit` reports 0 vulnerabilities
-
-## What's Included
-
-- **Dashboard Analytics** - Interactive dashboard with charts and widgets
-- **UI Elements** - Buttons, cards, dropdowns, icons, timeline, and more
-- **Components** - Tabs, accordions, modals, pagination, progress bars, tooltips
-- **Form Elements** - Complete form controls and layouts
-- **Data Tables** - Responsive table components
-- **Charts** - Line, bar, pie, doughnut, radar, polar area, and more chart types
-- **User Pages** - Login, register, and password recovery pages
-- **Responsive Layout** - Header, sidebar, footer layout system
-- **In-App Documentation** - Lazy-loaded `/docs` section covering setup, structure, theming, state, components, charts, and tooling
-
-## Live Demo
-
-Check out the live demo: **[ArchitectUI Angular Free Demo](https://demo.dashboardpack.com/architectui-angular-free/)**
-
-## Preview
-
-![ArchitectUI Angular Dashboard Template](./architectui-angular-dashboard.webp)
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js `^20.19.0`, `^22.12.0`, or `>=24` (22.x LTS recommended; see `.nvmrc`)
-- npm or yarn
-- Angular CLI 21+
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/your-username/architectui-angular-free.git
-cd architectui-angular-free
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
-ng serve
-```
-
-4. Open your browser and navigate to `http://localhost:4200`
-
-### Build for Production
-
-```bash
-ng build --configuration production
-```
-
-The build artifacts will be stored in the `dist/` directory.
-
-## Development Commands
-
-| Command | Description |
-|---------|-------------|
-| `ng serve` | Start development server at http://localhost:4200 |
-| `ng build` | Build the project for production |
-| `npm run build:prod` | Build for subdirectory deployment with correct base href |
-| `ng test` | Run unit tests via Karma |
-| `ng lint` | Run ESLint code analysis |
-| `ng generate component <name>` | Generate a new component |
-
-## Production Deployment
-
-### For Subdirectory Deployment
-When deploying to a subdirectory like `https://demo.dashboardpack.com/architectui-angular-free/`:
-
-```bash
-npm run build:prod
-```
-
-This command:
-- Builds with production optimizations
-- Sets base href to `/architectui-angular-free/`
-- Outputs to `dist/architectui-angular-free/`
-
-Then upload the contents of `dist/architectui-angular-free/` to your server's subdirectory.
-
-### For Root Domain Deployment
-When deploying to a root domain like `https://yourdomain.com/`:
-
-```bash
-ng build --configuration production
-```
-
-### Server Configuration
-
-#### Apache (.htaccess)
-An `.htaccess` file is included in the project root. Copy it to your deployment folder along with the built files.
-
-#### Nginx
-Add this to your server configuration:
-```nginx
-location /architectui-angular-free/ {
-    try_files $uri $uri/ /architectui-angular-free/index.html;
-}
-```
-
-### Important Deployment Notes
-
-1. **After building with `npm run build:prod`:**
-   - Upload all contents from `dist/architectui-angular-free/browser/`
-   - The `.htaccess` file is automatically included in the build
-   - Verify the base href in index.html is `/architectui-angular-free/`
-
-2. **File Structure on Server:**
-   ```
-   /architectui-angular-free/
-   ├── index.html (with correct base href)
-   ├── favicon.ico
-   ├── .htaccess (handles direct URL access)
-   ├── main-*.js
-   ├── polyfills-*.js
-   ├── scripts-*.js
-   ├── styles-*.css
-   ├── assets/
-   └── media/
-   ```
-
-3. **Direct URL Access Fix:**
-   The `.htaccess` file ensures that direct links like `/architectui-angular-free/dashboards/analytics` work correctly by redirecting all routes to `index.html`, allowing Angular to handle the routing.
-
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── DemoPages/           # Main application pages
-│   │   ├── Dashboards/      # Dashboard components
-│   │   ├── Elements/        # UI elements
-│   │   ├── Components/      # Interactive components
-│   │   ├── Forms/          # Form components
-│   │   ├── Tables/         # Table components
-│   │   ├── Charts/         # Chart components
-│   │   └── UserPages/      # Authentication pages
-│   ├── Layout/             # Layout components (header, sidebar, footer)
-│   ├── ThemeOptions/       # Theme configuration and state management
-│   └── shared/             # Shared modules and components
-├── assets/                 # Static assets (images, styles, etc.)
-└── environments/          # Environment configurations
-```
-
-## Browser Support
-
-- **Chrome** (latest)
-- **Firefox** (latest)
-- **Safari** (latest)
-- **Edge** (latest)
-
-## Resources & Related Templates
-
-### More Admin Dashboards
-Explore more premium admin dashboard templates at [Colorlib](https://colorlib.com):
-- [Angular Admin Templates](https://colorlib.com/wp/angular-admin-templates/) - Collection of the best Angular admin dashboards
-- [Bootstrap Admin Templates](https://colorlib.com/wp/bootstrap-admin-templates/) - Premium Bootstrap-based admin templates
-- [Free Admin Templates](https://colorlib.com/wp/free-admin-templates/) - High-quality free admin dashboard templates
-
-### Professional Versions
-- **ArchitectUI Angular Pro** - [Get the Pro Version](https://dashboardpack.com/theme-details/architectui-angular-7-bootstrap-material-design-pro) - Premium version with advanced components, more pages, and premium support
-- **React Version** - [ArchitectUI React](https://dashboardpack.com/theme-details/architectui-dashboard-react-pro)
-- **Vue Version** - [ArchitectUI Vue](https://dashboardpack.com/theme-details/architectui-dashboard-vue-pro)
-- **HTML/jQuery Version** - [ArchitectUI HTML](https://dashboardpack.com/theme-details/architectui-dashboard-html-pro/)
-
-### DashboardPack
-Visit [DashboardPack.com](https://dashboardpack.com) for more premium admin dashboard templates and themes for various frameworks and technologies.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for the full change history.
-
-The current release (3.4.0) brings:
-
-- **Angular 22 + TypeScript 6.** Upgraded the framework from Angular 21 to **22.0.0** and TypeScript from 5.9 to **6.0**, via the `ng update` 21 → 22 migrations
-- **`npm audit` is clean (0 vulnerabilities)**; every dependency at its latest compatible release
-- `@fortawesome/angular-fontawesome` 4 → 5, `angular-eslint` 21 → 22
-- _Compatibility note:_ `@ng-bootstrap` and `@ngrx` haven't shipped Angular 22 builds yet — they're verified working on Angular 22 and installed via `legacy-peer-deps` (see `.npmrc`); they'll be bumped once 22-compatible releases land
-
-The previous release (3.3.0) migrated the build system from webpack to **Vite** (`@angular/build`) and ESLint 9 → 10 (flat config).
-
-Previous release (3.2.0): Font Awesome 4 → 7, vendored Bootstrap SCSS removed in favor of npm Bootstrap 5.3.8, and Angular signals adopted across shared UI state.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For questions and support:
-- Check the [issues page](../../issues) for common problems and solutions
-- Visit [DashboardPack](https://dashboardpack.com) for premium support options
-- Browse [Colorlib's admin templates](https://colorlib.com/wp/angular-admin-templates/) for more resources
+Construit sur le template [ArchitectUI Angular](https://dashboardpack.com) (MIT).
 
 ---
 
-Made with care by the DashboardPack team. Built on the foundation of Angular, Bootstrap, and modern web technologies.#   A R C _ D a s h b o a r d  
- #   A R C _ D a s h b o a r d  
- #   A R C _ D a s h b o a r d  
- 
+## Ce que fait l'application
+
+Trois profils se connectent avec la même page, en choisissant leur qualité. Chacun
+n'accède qu'à son périmètre, garanti côté serveur par le token et non par l'interface.
+
+| Profil | Ce qu'il consulte |
+|---|---|
+| **Débiteur** | Sa fiche entreprise, ses dettes avec échéances et avancement des versements, ses partenaires, son agent de recouvrement |
+| **Partenaire** | Son portefeuille de débiteurs avec encours et taux de recouvrement, l'ensemble de ses créances, son rapport d'activité |
+| **Agent** | Les débiteurs qui lui sont assignés, les dettes priorisées par ancienneté du retard, ses indicateurs de suivi |
+
+Une dette est **soldée** quand son solde est nul, **en retard** quand son échéance est
+dépassée, **en cours** sinon. Une échéance absente ou non interprétable ne bascule jamais
+en retard : le champ est une chaîne libre côté MongoDB.
+
+---
+
+## Architecture
+
+Le produit tient en deux dépôts distincts :
+
+```
+arc_dsahboard/       ce dépôt — front-end Angular 22
+recouvrement-app/    API Laravel 7 + Backpack, stockage MongoDB
+```
+
+Le front n'a aucun accès direct à la base : tout passe par l'API REST.
+
+---
+
+## Prérequis
+
+| Composant | Version |
+|---|---|
+| Node.js | 22.x (voir `.nvmrc`) |
+| npm | 10+ |
+| API `recouvrement-app` | démarrée, avec MongoDB accessible |
+
+---
+
+## Démarrage
+
+### 1. L'API
+
+```bash
+cd ../recouvrement-app
+php artisan serve --port=8000
+```
+
+Elle doit écouter sur l'URL configurée dans `src/environments/environment.ts`, et
+autoriser l'origine du front dans son `FRONTEND_URLS` (voir son propre README).
+
+### 2. Le front
+
+```bash
+npm install
+npm start
+```
+
+Puis ouvrir <http://localhost:4200>. La racine redirige vers la connexion, ou vers
+l'espace du profil déjà connecté.
+
+---
+
+## Configuration
+
+L'adresse de l'API se règle par environnement :
+
+```ts
+// src/environments/environment.ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8000/api'
+};
+```
+
+> **Avant tout déploiement**, `environment.prod.ts` doit être renseigné : il contient
+> aujourd'hui `/api`, une valeur relative de remplacement.
+
+---
+
+## Comptes
+
+Les comptes sont créés par un administrateur depuis l'interface Backpack de
+`recouvrement-app` — il n'y a pas d'auto-inscription, ni de récupération de mot de passe.
+Les pages correspondantes du template existent encore mais ne sont pas routées, faute
+d'endpoint qui les prenne en charge.
+
+Un débiteur ou un agent sans mot de passe enregistré ne peut pas se connecter.
+
+---
+
+## Structure
+
+```
+src/app/
+├── core/                  socle applicatif
+│   ├── models/            types calqués sur les ressources de l'API
+│   ├── services/          auth + un service par profil
+│   ├── guards/            accueil, authentification, profil
+│   ├── interceptors/      injection du token, traitement des 401
+│   └── utils/             exploitation des corps d'erreur
+├── Profils/
+│   ├── shared/            tableaux, graphiques, statuts, consolidation
+│   ├── debiteur/          espace débiteur
+│   ├── partenaire/        espace partenaire
+│   └── agent/             espace agent
+├── Layout/                bandeau, barre latérale, pied de page
+└── DemoPages/             vitrine du template (voir « Limites connues »)
+```
+
+### Session
+
+`AuthService` porte l'état en **signals**. Seuls le token et le profil sont conservés en
+`localStorage` ; l'utilisateur est rechargé depuis `/auth/me` au démarrage, de sorte
+qu'un compte modifié ou révoqué ne soit jamais affiché à partir d'un cache périmé.
+
+L'intercepteur ferme la session sur un 401, **sauf sur `/auth/login`** où un 401 signifie
+« identifiants incorrects » et doit rester dans le formulaire.
+
+`profilGuard` renvoie un utilisateur arrivé sur l'espace d'un autre profil vers **le
+sien**, et non vers la page de connexion : il est authentifié, simplement au mauvais
+endroit.
+
+---
+
+## Contrat d'API
+
+```http
+POST /api/auth/login     { profil, email, password }  →  { token, type, expires_in, profil, utilisateur }
+GET  /api/auth/me        Authorization: Bearer <token>
+POST /api/auth/refresh   Authorization: Bearer <token>
+POST /api/auth/logout    Authorization: Bearer <token>
+```
+
+`profil` vaut `debiteur`, `partenaire` ou `agent`.
+
+| Profil | Endpoints |
+|---|---|
+| Débiteur | `/api/debiteur/me` · `/me/dettes` · `/me/partenaires` · `/me/agent` · `/me/synthese` · `/me/paiements` · `/me/recus` |
+| Partenaire | `/api/partenaire/me` · `/me/dettes` · `/me/debiteurs` · `/me/rapport` · `/me/synthese` |
+| Agent | `/api/agent/me` · `/me/debiteurs` · `/me/dettes` · `/me/synthese` |
+
+Aucun endpoint n'accepte d'identifiant en paramètre : le périmètre est déduit du token.
+
+### Conventions de réponse
+
+- Les collections sont des tableaux JSON nus, sans enveloppe `data`
+- `_id` est exposé sous la clé `id`, en chaîne
+- Les montants, stockés en chaînes côté base, sont normalisés en entiers (FCFA)
+- Une relation optionnelle absente — agent non assigné, rapport non produit — répond
+  **204 sans corps**, que `HttpClient` restitue en `null`
+- Les réponses 401 et 403 portent un champ `code` (`token_expire`, `token_invalide`,
+  `profil_non_autorise`, `compte_introuvable`) permettant de distinguer une session
+  expirée d'un accès refusé
+
+### Paiement en ligne d'une dette
+
+Implémenté des deux côtés : `PaiementService` et l'onglet « Payer une dette » ici,
+`PaiementController` et `App\Services\Paiement` dans `recouvrement-app`.
+
+```http
+GET    /api/debiteur/me/paiements              → Paiement[]  (du plus récent au plus ancien)
+POST   /api/debiteur/me/paiements              → Paiement
+GET    /api/debiteur/me/paiements/{id}         → Paiement
+POST   /api/debiteur/me/paiements/{id}/annuler → Paiement
+```
+
+Corps du `POST` :
+
+```json
+{
+  "dette_id": "…",
+  "montant": 250000,
+  "moyen": "carte | orange_money | mtn_momo | paypal",
+  "telephone": "+237…",
+  "url_retour": "https://…/debiteur/paiements"
+}
+```
+
+`telephone` n'est envoyé que pour `orange_money` et `mtn_momo`. `url_retour` est l'adresse
+sur laquelle le prestataire doit renvoyer le débiteur, complétée par l'API d'un
+paramètre `?paiement={id}` : le front y reprend le suivi du statut.
+
+Ressource `Paiement` :
+
+```json
+{
+  "id": "…", "reference": "ARC-20260819-K7M2QP",
+  "dette_id": "…", "partenaire_id": "…",
+  "montant": 250000, "devise": "FCFA",
+  "moyen": "orange_money",
+  "statut": "initie | en_attente | reussi | echoue | annule",
+  "url_redirection": "https://psp…/pay/…",
+  "instruction": "Composez #150*50# pour valider",
+  "message_echec": null,
+  "notifications": [
+    {"destinataire": "admin", "canal": "email", "nom": null, "envoyee": true},
+    {"destinataire": "partenaire", "canal": "email", "nom": "Ets Nkolo", "envoyee": true}
+  ],
+  "cree_le": "…", "confirme_le": "…"
+}
+```
+
+Comportement côté serveur :
+
+- `url_redirection` est renseignée pour `carte` et `paypal`, nulle pour le mobile money,
+  qui renvoie à la place une `instruction` et le statut `en_attente`
+- Sur `initie` et `en_attente`, le front relit `GET /paiements/{id}` toutes les 4 s,
+  pendant 3 minutes au plus. Chaque lecture interroge le prestataire ; le webhook
+  `POST /api/paiements/webhook/{passerelle}` fait la même chose sans navigateur ouvert
+- Le passage à `reussi` est le **seul** moment où `montant_verse`, `solde` et
+  `dernier_versement` de la dette sont recalculés, et l'opération est idempotente :
+  un webhook arrivant après la relecture du front ne crédite pas deux fois. Le front
+  ne décrémente rien localement, il relit `/me/dettes` et `/me/synthese`
+- Une confirmation émet un `Recu` au format déjà connu du back-office, puis notifie par
+  courriel l'administration, le partenaire créancier et l'agent en charge. Le tableau
+  `notifications` dit au débiteur qui a été prévenu ; un tableau vide affiche un
+  message générique
+- Un montant supérieur au solde, ou une dette déjà soldée, sont refusés en 422
+
+### Reçus de versement
+
+```http
+GET /api/debiteur/me/recus  → Recu[]  (du plus récent au plus ancien)
+```
+
+Alimente l'onglet « Mes reçus ». La liste mêle les règlements encaissés en ligne et
+ceux saisis à la main dans le back-office (chèque, espèces, virement) : seul un
+`paiement_id` non nul distingue les premiers, ce que l'onglet signale par un badge.
+
+Passerelles : **CinetPay** couvre la carte et les deux mobile money en zone CEMAC,
+**PayPal** l'API Orders v2. Sans identifiants marchands, une passerelle **factice**
+prend le relais hors production et déroule tout le tunnel sans prestataire réel —
+c'est ce qui rend l'onglet utilisable en développement.
+
+---
+
+## Commandes
+
+| Commande | Effet |
+|---|---|
+| `npm start` | Serveur de développement sur <http://localhost:4200> |
+| `npm run build` | Build de production (`ng build` compile en production par défaut) |
+| `npm test` | Tests unitaires (Karma) |
+| `npm run lint` | Analyse ESLint |
+
+Pour une exécution non interactive des tests :
+
+```bash
+npx ng test --watch=false --browsers=ChromeHeadless
+```
+
+Les tests couvrent la session, les guards, l'intercepteur, le calcul des statuts de dette
+et la consolidation par débiteur.
+
+---
+
+## Déploiement
+
+```bash
+npm run build
+```
+
+Les fichiers sont produits dans `dist/architectui-angular-free/browser/` — un chemin
+hérité du template. C'est ce dossier qu'il faut servir, en réécrivant toutes les routes
+vers `index.html`, sans quoi un accès direct à `/debiteur/dettes` renverra un 404. Un
+`.htaccess` est fourni à la racine pour Apache. Pour Nginx :
+
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+---
+
+## Limites connues
+
+Aucune n'empêche l'application de fonctionner, mais toutes méritent d'être traitées avant
+une mise en production.
+
+| Sujet | État |
+|---|---|
+| `environment.prod.ts` | `apiUrl` vaut `/api`, une valeur de remplacement |
+| `npm run build:prod` | Conserve le `--base-href /architectui-angular-free/` du template |
+| Nom du paquet | `package.json` s'appelle encore `architectui-angular-free` |
+| Vitrine du template | Les pages de démonstration restent routées et accessibles sans authentification |
+| Avatars | Les pages de démonstration référencent des images supprimées |
+| `.widget-heading` | Une règle globale de `_header-dropdowns.scss` impose une couleur sombre à tous les widgets ; contournée là où c'était visible, pas corrigée à la source |
+| Rattachement des agents | Le champ `agent_id` n'est renseigné sur aucun débiteur en base : l'espace agent reste vide tant que ce lien n'est pas saisi dans Backpack |
+| Reçus | La collection existe côté API mais aucun écran ne l'expose |
+
+Le découpage du chantier et son avancement sont consignés dans
+[PLAN-RECOUVREMENT.md](PLAN-RECOUVREMENT.md).
+
+---
+
+## Licence
+
+MIT — voir [LICENSE](LICENSE). Le template ArchitectUI dont ce projet dérive est
+distribué par [DashboardPack](https://dashboardpack.com) sous la même licence.

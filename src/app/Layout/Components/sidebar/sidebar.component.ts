@@ -61,7 +61,9 @@ export class SidebarComponent implements OnInit {
       case 'debiteur':
         return [
           {lien: '/debiteur/dashboard', libelle: 'Mon dossier', icone: 'pe-7s-graph'},
-          {lien: '/debiteur/dettes', libelle: 'Mes dettes', icone: 'pe-7s-cash'}
+          {lien: '/debiteur/dettes', libelle: 'Mes dettes', icone: 'pe-7s-cash'},
+          {lien: '/debiteur/paiements', libelle: 'Payer une dette', icone: 'pe-7s-credit'},
+          {lien: '/debiteur/recus', libelle: 'Mes reçus', icone: 'pe-7s-note2'}
         ];
       case 'partenaire':
         return [

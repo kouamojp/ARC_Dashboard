@@ -76,7 +76,7 @@
         @if (rapport(); as r) {
           <dl class="row mb-0">
             <dt class="col-7">Créance suivie</dt>
-            <dd class="col-5 text-end">{{ r.montant_creance | montant: '' }}</dd>
+            <dd class="col-5 text-end">{{ r.montant_creance | montant: r.devise }}</dd>
             <dt class="col-7">Dossiers transmis</dt>
             <dd class="col-5 text-end">{{ r.nbre_dossier_transmi }}</dd>
             <dt class="col-7">Dossiers actifs</dt>

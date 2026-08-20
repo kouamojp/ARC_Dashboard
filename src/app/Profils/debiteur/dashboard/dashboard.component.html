@@ -40,7 +40,10 @@
     <div class="main-card mb-3 card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>Avancement du recouvrement</span>
-        <a routerLink="/debiteur/dettes" class="btn btn-sm btn-primary">Voir mes dettes</a>
+        <span class="d-flex gap-2">
+          <a routerLink="/debiteur/dettes" class="btn btn-sm btn-outline-primary">Voir mes dettes</a>
+          <a routerLink="/debiteur/paiements" class="btn btn-sm btn-primary">Payer une dette</a>
+        </span>
       </div>
       <div class="card-body">
         <app-graphique-recouvrement [synthese]="synthese()"></app-graphique-recouvrement>

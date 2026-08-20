@@ -56,6 +56,24 @@ export interface Dette {
   partenaire_id: string | null;
 }
 
+export interface Recu {
+  id: string;
+  /** Numéro de bordereau, référence du reçu auprès de l'administration. */
+  bordereau: string;
+  montant: number;
+  devise: string;
+  /** Libellé libre : « Chèque », « Espèces », « Orange Money »… */
+  mode: string | null;
+  /** Date du versement, au format AAAA-MM-JJ. */
+  date: string | null;
+  dette_id: string | null;
+  partenaire_id: string | null;
+  /** Renseigné uniquement pour les reçus issus d'un paiement en ligne. */
+  paiement_id: string | null;
+  commentaire: string | null;
+  cree_le: string | null;
+}
+
 export interface Rapport {
   id: string;
   partenaire_id: string | null;

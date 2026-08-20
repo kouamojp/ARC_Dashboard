@@ -1,6 +1,7 @@
 export * from './models';
 export * from './services/auth.service';
 export * from './services/debiteur.service';
+export * from './services/paiement.service';
 export * from './services/partenaire.service';
 export * from './services/agent.service';
 export * from './guards/auth.guard';

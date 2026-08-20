@@ -85,6 +85,11 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 4000,
+            "host": "0.0.0.0",
+            "allowedHosts": [".devtunnels.ms", ".github.dev", "localhost"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "architectui-angular-free:build:production"
