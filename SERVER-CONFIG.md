@@ -3,7 +3,7 @@
 This guide provides multiple solutions for handling Angular routing on different server setups.
 
 ## The Problem
-When accessing URLs like `/architectui-angular-free/dashboards/analytics` directly or refreshing the page, you get a 404 error because the server looks for physical files that don't exist. Angular's client-side routing only works after `index.html` is loaded.
+When accessing URLs like `/arcreances/dashboards/analytics` directly or refreshing the page, you get a 404 error because the server looks for physical files that don't exist. Angular's client-side routing only works after `index.html` is loaded.
 
 ## Solutions by Server Type
 
@@ -20,7 +20,7 @@ The build includes an `.htaccess` file with multiple fallback methods. Ensure yo
     ServerName your-domain.com
     DocumentRoot /var/www/html
     
-    <Directory "/var/www/html/architectui-angular-free">
+    <Directory "/var/www/html/arcreances">
         AllowOverride All
         Options -MultiViews
     </Directory>
@@ -39,9 +39,9 @@ server {
     index index.html;
 
     # Handle Angular app in subdirectory
-    location /architectui-angular-free/ {
-        alias /var/www/html/architectui-angular-free/;
-        try_files $uri $uri/ /architectui-angular-free/index.html;
+    location /arcreances/ {
+        alias /var/www/html/arcreances/;
+        try_files $uri $uri/ /arcreances/index.html;
     }
 }
 ```
@@ -55,7 +55,7 @@ If `.htaccess` doesn't work, set up a custom 404 page:
 
 **For cPanel/shared hosting:**
 - Upload `404.php` to your directory
-- In cPanel Error Pages, set 404 to redirect to `/architectui-angular-free/404.php`
+- In cPanel Error Pages, set 404 to redirect to `/arcreances/404.php`
 
 ### 4. Node.js/Express Server
 
@@ -65,11 +65,11 @@ const path = require('path');
 const app = express();
 
 // Serve static files
-app.use('/architectui-angular-free', express.static(path.join(__dirname, 'architectui-angular-free')));
+app.use('/arcreances', express.static(path.join(__dirname, 'arcreances')));
 
 // Handle Angular routing
-app.get('/architectui-angular-free/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'architectui-angular-free/index.html'));
+app.get('/arcreances/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'arcreances/index.html'));
 });
 
 app.listen(3000);
@@ -91,7 +91,7 @@ Create a `web.config` file:
             <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
             <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
           </conditions>
-          <action type="Rewrite" url="/architectui-angular-free/index.html" />
+          <action type="Rewrite" url="/arcreances/index.html" />
         </rule>
       </rules>
     </rewrite>
@@ -101,11 +101,11 @@ Create a `web.config` file:
 
 ## Testing Your Configuration
 
-1. Upload all files from `dist/architectui-angular-free/browser/` to your server
-2. Access your app at `https://your-domain.com/architectui-angular-free/`
+1. Upload all files from `dist/arcreances/browser/` to your server
+2. Access your app at `https://your-domain.com/arcreances/`
 3. Try direct URLs:
-   - `https://your-domain.com/architectui-angular-free/dashboards/analytics`
-   - `https://your-domain.com/architectui-angular-free/elements/buttons-standard`
+   - `https://your-domain.com/arcreances/dashboards/analytics`
+   - `https://your-domain.com/arcreances/elements/buttons-standard`
 4. Refresh the page on any route to ensure it works
 
 ## Troubleshooting
@@ -126,7 +126,7 @@ Create a `web.config` file:
    Configure `404.php` as your error page
 
 5. **Verify base href**:
-   Ensure `index.html` has `<base href="/architectui-angular-free/">`
+   Ensure `index.html` has `<base href="/arcreances/">`
 
 ### Common Issues
 
