@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { Agent, Debiteur, Dette, Partenaire, Synthese } from '../models';
+import { Agent, Debiteur, Dette, Partenaire, Recu, Synthese } from '../models';
 
 /**
  * Espace personnel du débiteur connecté.
@@ -29,6 +29,11 @@ export class DebiteurService {
   /** Null tant qu'aucun agent de recouvrement n'est assigné (204 côté API). */
   agent(): Observable<Agent | null> {
     return this.http.get<Agent | null>(`${this.base}/agent`);
+  }
+
+  /** Reçus de versement, du plus récent au plus ancien. */
+  recus(): Observable<Recu[]> {
+    return this.http.get<Recu[]>(`${this.base}/recus`);
   }
 
   synthese(): Observable<Synthese> {

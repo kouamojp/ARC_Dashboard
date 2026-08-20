@@ -1,0 +1,123 @@
+<app-page-title
+  [heading]="'Mes reçus'"
+  [subheading]="'Justificatifs de tous vos versements, en ligne comme au guichet.'"
+  [icon]="'pe-7s-note2 text-success'">
+</app-page-title>
+
+@if (erreur()) {
+  <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+}
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="main-card mb-3 card">
+      <div class="card-body text-center">
+        <div class="text-muted small text-uppercase">Total des reçus affichés</div>
+        <div class="fs-3 fw-bold text-success">{{ totalAffiche() | montant }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="main-card mb-3 card">
+      <div class="card-body text-center">
+        <div class="text-muted small text-uppercase">Nombre de reçus</div>
+        <div class="fs-3 fw-bold">{{ recusAffiches().length }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="main-card mb-3 card">
+      <div class="card-body text-center">
+        <div class="text-muted small text-uppercase">Dernier versement</div>
+        <div class="fs-3 fw-bold">{{ dernierVersement() || '—' }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main-card mb-3 card">
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <span>Reçus de versement</span>
+
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      @if (annees().length > 1) {
+        <div class="btn-group btn-group-sm" role="group" aria-label="Filtrer par année">
+          <button type="button" class="btn"
+                  [class.btn-primary]="annee() === toutes"
+                  [class.btn-outline-primary]="annee() !== toutes"
+                  (click)="annee.set(toutes)">
+            Toutes
+          </button>
+          @for (a of annees(); track a) {
+            <button type="button" class="btn"
+                    [class.btn-primary]="annee() === a"
+                    [class.btn-outline-primary]="annee() !== a"
+                    (click)="annee.set(a)">
+              {{ a }}
+            </button>
+          }
+        </div>
+      }
+
+      <input type="search" class="form-control form-control-sm" style="max-width: 230px;"
+             placeholder="Bordereau, dette, mode…"
+             aria-label="Rechercher un reçu"
+             [value]="recherche()"
+             (input)="recherche.set($any($event.target).value)">
+
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="imprimer()">
+        <i class="pe-7s-print align-middle me-1"></i>Imprimer
+      </button>
+    </div>
+  </div>
+
+  @if (chargement()) {
+    <div class="card-body text-center text-muted py-5">Chargement de vos reçus…</div>
+  } @else {
+    <div class="table-responsive">
+      <table class="align-middle mb-0 table table-borderless table-striped table-hover">
+        <caption class="caption-top text-muted small px-3 pt-2">Montants en {{ devise }}</caption>
+        <thead>
+          <tr>
+            <th>Bordereau</th>
+            <th>Date</th>
+            <th>Dette</th>
+            <th>Partenaire</th>
+            <th>Mode</th>
+            <th class="text-end">Montant</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (recu of recusAffiches(); track recu.id) {
+            <tr>
+              <td>
+                <strong class="font-monospace">{{ recu.bordereau }}</strong>
+                @if (estEnLigne(recu)) {
+                  <span class="badge bg-primary ms-2">Payé en ligne</span>
+                }
+                @if (recu.commentaire) {
+                  <small class="text-muted d-block">{{ recu.commentaire }}</small>
+                }
+              </td>
+              <td>{{ recu.date || '—' }}</td>
+              <td>{{ intituleDette(recu) }}</td>
+              <td>{{ nomPartenaire(recu) }}</td>
+              <td>{{ recu.mode || '—' }}</td>
+              <td class="text-end fw-bold text-success">{{ recu.montant | montant: '' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                @if (recus().length) {
+                  Aucun reçu ne correspond à votre recherche.
+                } @else {
+                  Aucun reçu pour le moment. Vos versements apparaîtront ici.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

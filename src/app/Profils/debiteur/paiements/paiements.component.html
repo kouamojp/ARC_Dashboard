@@ -1,0 +1,526 @@
+<app-page-title
+  [heading]="'Payer une dette'"
+  [subheading]="
+    'Réglez tout ou partie de vos créances par carte bancaire, mobile money ou PayPal.'
+  "
+  [icon]="'pe-7s-credit text-primary'"
+>
+</app-page-title>
+
+@if (erreur()) {
+  <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+}
+
+@switch (etape()) {
+  <!-- ÉTAPE 1 — Choix de la dette, du montant et du moyen -->
+  @case ("formulaire") {
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="main-card mb-3 card">
+          <div class="card-header">Nouveau paiement</div>
+          <div class="card-body">
+            @if (chargement()) {
+              <p class="text-muted text-center py-4 mb-0">
+                Chargement de vos dettes…
+              </p>
+            } @else if (!dettesReglables().length) {
+              <div class="text-center py-4">
+                <i class="pe-7s-check text-success" style="font-size: 3rem"></i>
+                <p class="mb-0 mt-2">
+                  Toutes vos dettes sont soldées. Rien à régler pour le moment.
+                </p>
+              </div>
+            } @else {
+              <form
+                [formGroup]="formulaire"
+                (ngSubmit)="soumettre()"
+                novalidate
+              >
+                <!-- Dette à régler -->
+                <div class="mb-3">
+                  <label class="form-label" for="dette">Dette à régler</label>
+                  <select
+                    id="dette"
+                    class="form-select"
+                    formControlName="dette_id"
+                    [class.is-invalid]="enFaute('dette_id')"
+                  >
+                    <option value="">— Choisissez une dette —</option>
+                    @for (dette of dettesReglables(); track dette.id) {
+                      <option [value]="dette.id">
+                        {{ dette.intitule }} — solde {{ dette.solde | montant }}
+                      </option>
+                    }
+                  </select>
+                  @if (enFaute("dette_id")) {
+                    <div class="invalid-feedback d-block">
+                      Sélectionnez la dette à régler.
+                    </div>
+                  }
+                  @if (erreursChamps()["dette_id"]) {
+                    <div class="invalid-feedback d-block">
+                      {{ erreursChamps()["dette_id"] }}
+                    </div>
+                  }
+                </div>
+
+                <!-- Montant -->
+                <div class="mb-3">
+                  <label class="form-label" for="montant"
+                    >Montant à payer</label
+                  >
+                  <div class="input-group">
+                    <input
+                      id="montant"
+                      type="number"
+                      class="form-control"
+                      formControlName="montant"
+                      min="1"
+                      [max]="detteChoisie()?.solde || null"
+                      step="1"
+                      [class.is-invalid]="enFaute('montant')"
+                    />
+                    <span class="input-group-text">{{ devise.trim() }}</span>
+                  </div>
+                  @if (detteChoisie(); as d) {
+                    <div class="form-text d-flex justify-content-between">
+                      <span>Solde actuel : {{ d.solde | montant }}</span>
+                      <button
+                        type="button"
+                        class="btn btn-link btn-sm p-0"
+                        (click)="formulaire.controls.montant.setValue(d.solde)"
+                      >
+                        Solder entièrement
+                      </button>
+                    </div>
+                  }
+                  @if (enFaute("montant")) {
+                    <div class="invalid-feedback d-block">
+                      Saisissez un montant compris entre 1 et le solde de la
+                      dette.
+                    </div>
+                  }
+                  @if (erreursChamps()["montant"]) {
+                    <div class="invalid-feedback d-block">
+                      {{ erreursChamps()["montant"] }}
+                    </div>
+                  }
+                </div>
+
+                <!-- Moyen de paiement -->
+                <fieldset class="mb-3">
+                  <legend class="form-label fs-6">Moyen de paiement</legend>
+                  <div class="row g-2">
+                    @for (m of moyens; track m.moyen) {
+                      <div class="col-sm-6">
+                        <button
+                          type="button"
+                          class="btn w-100 text-start d-flex align-items-center gap-3 p-3 h-auto"
+                          [class.btn-primary]="moyenChoisi() === m.moyen"
+                          [class.btn-outline-secondary]="
+                            moyenChoisi() !== m.moyen
+                          "
+                          [attr.aria-pressed]="moyenChoisi() === m.moyen"
+                          (click)="choisirMoyen(m.moyen)"
+                        >
+                          <i
+                            [ngClass]="m.icone"
+                            style="font-size: 2rem; line-height: 1"
+                          ></i>
+                          <span>
+                            <strong class="d-block">{{ m.libelle }}</strong>
+                            <small class="opacity-75">{{ m.detail }}</small>
+                          </span>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                  @if (erreursChamps()["moyen"]) {
+                    <div class="invalid-feedback d-block">
+                      {{ erreursChamps()["moyen"] }}
+                    </div>
+                  }
+                </fieldset>
+
+                <!-- Téléphone, uniquement pour le mobile money -->
+                @if (telephoneRequis()) {
+                  <div class="mb-3">
+                    <label class="form-label" for="telephone">
+                      Numéro {{ descriptionMoyen().libelle }} à débiter
+                    </label>
+                    <input
+                      id="telephone"
+                      type="tel"
+                      class="form-control"
+                      formControlName="telephone"
+                      placeholder="+237 6 XX XX XX XX"
+                      autocomplete="tel"
+                      [class.is-invalid]="enFaute('telephone')"
+                    />
+                    <div class="form-text">
+                      Vous recevrez une demande de validation sur ce numéro.
+                    </div>
+                    @if (enFaute("telephone")) {
+                      <div class="invalid-feedback d-block">
+                        Saisissez un numéro de téléphone valide.
+                      </div>
+                    }
+                    @if (erreursChamps()["telephone"]) {
+                      <div class="invalid-feedback d-block">
+                        {{ erreursChamps()["telephone"] }}
+                      </div>
+                    }
+                  </div>
+                }
+
+                <div class="d-flex align-items-center gap-3">
+                  <button
+                    type="submit"
+                    class="btn btn-primary btn-lg"
+                    [disabled]="envoiEnCours()"
+                  >
+                    @if (envoiEnCours()) {
+                      Initialisation…
+                    } @else {
+                      Payer {{ montantSaisi() | montant }}
+                    }
+                  </button>
+                  <small class="text-muted">
+                    <i class="pe-7s-lock align-middle"></i>
+                    Aucune donnée bancaire n'est stockée par Arcréances.
+                  </small>
+                </div>
+              </form>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Récapitulatif -->
+      <div class="col-lg-4">
+        <div class="main-card mb-3 card">
+          <div class="card-header">Récapitulatif</div>
+          <div class="card-body">
+            @if (detteChoisie(); as d) {
+              <dl class="row mb-0">
+                <dt class="col-6">Créancier</dt>
+                <dd class="col-6 text-end">{{ nomPartenaire(d) }}</dd>
+                <dt class="col-6">Montant reconnu</dt>
+                <dd class="col-6 text-end">
+                  {{ d.montant_reconnu | montant }}
+                </dd>
+                <dt class="col-6">Déjà versé</dt>
+                <dd class="col-6 text-end text-success">
+                  {{ d.montant_verse | montant }}
+                </dd>
+                <dt class="col-6">Solde actuel</dt>
+                <dd class="col-6 text-end fw-bold text-danger">
+                  {{ d.solde | montant }}
+                </dd>
+                <dt class="col-6">Vous payez</dt>
+                <dd class="col-6 text-end fw-bold">
+                  {{ montantSaisi() | montant }}
+                </dd>
+                <dt class="col-6">Reste dû ensuite</dt>
+                <dd class="col-6 text-end">
+                  {{ resteApresPaiement() | montant }}
+                </dd>
+              </dl>
+            } @else {
+              <p class="text-muted mb-0">
+                Sélectionnez une dette pour voir le détail du règlement.
+              </p>
+            }
+          </div>
+        </div>
+
+        @if (synthese(); as s) {
+          <div class="main-card mb-3 card">
+            <div class="card-header">Ma situation globale</div>
+            <div class="card-body">
+              <app-graphique-recouvrement
+                [synthese]="s"
+              ></app-graphique-recouvrement>
+              <dl class="row mb-0 mt-3">
+                <dt class="col-7">Déjà versé</dt>
+                <dd class="col-5 text-end text-success">
+                  {{ s.montant_verse | montant: s.devise }}
+                </dd>
+                <dt class="col-7">Solde restant</dt>
+                <dd class="col-5 text-end fw-bold text-danger">
+                  {{ s.solde | montant: s.devise }}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ÉTAPE 2a — Redirection vers le prestataire (carte, PayPal) -->
+  @case ("redirection") {
+    <div class="main-card mb-3 card">
+      <div class="card-body text-center py-5">
+        <i class="pe-7s-global text-primary" style="font-size: 3.5rem"></i>
+        <h5 class="mt-3">
+          Finalisez le paiement chez {{ libellesMoyens[paiement()!.moyen] }}
+        </h5>
+        <p class="text-muted">
+          Le règlement de
+          <strong>{{
+            paiement()!.montant | montant: paiement()!.devise
+          }}</strong>
+          se termine sur la page sécurisée du prestataire. Vous serez ramené ici
+          automatiquement.
+        </p>
+        <div class="d-flex justify-content-center gap-2 mt-4">
+          <button
+            type="button"
+            class="btn btn-primary btn-lg"
+            (click)="poursuivreRedirection()"
+          >
+            Continuer vers {{ libellesMoyens[paiement()!.moyen] }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="annuler()"
+          >
+            Annuler
+          </button>
+        </div>
+        <p class="text-muted small mt-3 mb-0">
+          Référence : {{ paiement()!.reference }}
+        </p>
+      </div>
+    </div>
+  }
+
+  <!-- ÉTAPE 2b — Attente de validation (mobile money, retour prestataire) -->
+  @case ("attente") {
+    <div class="main-card mb-3 card">
+      <div class="card-body text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Vérification du paiement…</span>
+        </div>
+        <h5 class="mt-3">En attente de confirmation</h5>
+        @if (paiement(); as p) {
+          <p class="text-muted mb-1">
+            {{
+              p.instruction ||
+                "Validez la demande de paiement reçue sur votre téléphone."
+            }}
+          </p>
+          <p class="text-muted">
+            <strong>{{ p.montant | montant: p.devise }}</strong> —
+            {{ libellesMoyens[p.moyen] }} · Référence {{ p.reference }}
+          </p>
+          <button
+            type="button"
+            class="btn btn-outline-secondary mt-2"
+            (click)="annuler()"
+          >
+            Abandonner ce paiement
+          </button>
+        } @else {
+          <p class="text-muted">Vérification auprès du prestataire…</p>
+        }
+        <p class="small text-muted mt-4 mb-0">
+          Cette page se met à jour toute seule. Ne la fermez pas.
+        </p>
+      </div>
+    </div>
+  }
+
+  <!-- ÉTAPE 3a — Paiement confirmé -->
+  @case ("succes") {
+    <div class="row">
+      <div class="col-lg-7">
+        <div class="main-card mb-3 card border-success">
+          <div class="card-body text-center py-5">
+            <i class="pe-7s-check text-success" style="font-size: 3.5rem"></i>
+            <h5 class="mt-3">Paiement confirmé</h5>
+            @if (paiement(); as p) {
+              <p class="text-muted mb-1">
+                <strong>{{ p.montant | montant: p.devise }}</strong> réglés par
+                {{ libellesMoyens[p.moyen] }} pour «
+                {{ intituleDette(p.dette_id) }} ».
+              </p>
+              <p class="text-muted small">
+                Référence {{ p.reference }}
+                @if (p.confirme_le) {
+                  · {{ p.confirme_le }}
+                }
+              </p>
+            }
+            <div class="d-flex justify-content-center gap-2 mt-4">
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="recommencer()"
+              >
+                Effectuer un autre paiement
+              </button>
+              <a routerLink="/debiteur/dettes" class="btn btn-outline-primary"
+                >Voir mes dettes</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <!-- Montants relus depuis l'API après encaissement -->
+        <div class="main-card mb-3 card">
+          <div class="card-header">Montants mis à jour</div>
+          <div class="card-body">
+            @if (detteChoisie(); as d) {
+              <dl class="row mb-0">
+                <dt class="col-7">Dette</dt>
+                <dd class="col-5 text-end">{{ d.intitule }}</dd>
+                <dt class="col-7">Total versé</dt>
+                <dd class="col-5 text-end text-success">
+                  {{ d.montant_verse | montant }}
+                </dd>
+                <dt class="col-7">Nouveau solde</dt>
+                <dd
+                  class="col-5 text-end fw-bold"
+                  [class.text-danger]="d.solde > 0"
+                  [class.text-success]="d.solde <= 0"
+                >
+                  {{ d.solde | montant }}
+                </dd>
+              </dl>
+            }
+            @if (synthese(); as s) {
+              <hr />
+              <dl class="row mb-0">
+                <dt class="col-7">Solde global restant</dt>
+                <dd class="col-5 text-end fw-bold">
+                  {{ s.solde | montant: s.devise }}
+                </dd>
+                <dt class="col-7">Taux de recouvrement</dt>
+                <dd class="col-5 text-end">{{ s.taux_recouvrement }} %</dd>
+              </dl>
+            }
+          </div>
+        </div>
+
+        <!-- Notifications déclenchées côté serveur -->
+        <div class="main-card mb-3 card">
+          <div class="card-header">Personnes prévenues</div>
+          <div class="card-body">
+            @if (notificationsEnvoyees().length) {
+              <ul class="list-group list-group-flush">
+                @for (n of notificationsEnvoyees(); track $index) {
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center px-0"
+                  >
+                    <span>
+                      <i class="pe-7s-mail me-2 text-success"></i>
+                      {{ n.nom || libellesDestinataires[n.destinataire] }}
+                      <small class="text-muted d-block ms-4">
+                        {{ libellesDestinataires[n.destinataire] }} ·
+                        {{ n.canal }}
+                      </small>
+                    </span>
+                    <span class="badge bg-success">Notifié</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="text-muted mb-0">
+                L'administration et le partenaire créancier sont prévenus de ce
+                règlement.
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ÉTAPE 3b — Paiement refusé ou abandonné -->
+  @case ("echec") {
+    <div class="main-card mb-3 card border-danger">
+      <div class="card-body text-center py-5">
+        <i class="pe-7s-close-circle text-danger" style="font-size: 3.5rem"></i>
+        <h5 class="mt-3">
+          {{
+            paiement()?.statut === "annule"
+              ? "Paiement annulé"
+              : "Paiement refusé"
+          }}
+        </h5>
+        <p class="text-muted">
+          {{
+            paiement()?.message_echec ||
+              "Aucun montant n'a été débité. Vous pouvez réessayer."
+          }}
+        </p>
+        @if (paiement(); as p) {
+          <p class="text-muted small">Référence {{ p.reference }}</p>
+        }
+        <button
+          type="button"
+          class="btn btn-primary mt-2"
+          (click)="recommencer()"
+        >
+          Réessayer
+        </button>
+      </div>
+    </div>
+  }
+}
+
+<!-- Historique, visible à toutes les étapes -->
+<div class="main-card mb-3 card">
+  <div class="card-header">Historique de mes paiements</div>
+  <div class="table-responsive">
+    <table
+      class="align-middle mb-0 table table-borderless table-striped table-hover"
+    >
+      <caption class="caption-top text-muted small px-3 pt-2">
+        Montants en
+        {{
+          devise
+        }}
+      </caption>
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Dette</th>
+          <th>Moyen</th>
+          <th class="text-end">Montant</th>
+          <th>Date</th>
+          <th class="text-center">Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of historique(); track p.id) {
+          <tr>
+            <td>
+              <span class="text-muted small">{{ p.reference }}</span>
+            </td>
+            <td>{{ intituleDette(p.dette_id) }}</td>
+            <td>{{ libellesMoyens[p.moyen] }}</td>
+            <td class="text-end fw-bold">{{ p.montant | montant: "" }}</td>
+            <td>{{ p.confirme_le || p.cree_le || "—" }}</td>
+            <td class="text-center">
+              <span class="badge" [ngClass]="classesStatut[p.statut]">
+                {{ libellesStatut[p.statut] }}
+              </span>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">
+              Aucun paiement enregistré pour le moment.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

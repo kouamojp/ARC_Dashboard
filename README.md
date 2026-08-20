@@ -147,7 +147,7 @@ POST /api/auth/logout    Authorization: Bearer <token>
 
 | Profil | Endpoints |
 |---|---|
-| Débiteur | `/api/debiteur/me` · `/me/dettes` · `/me/partenaires` · `/me/agent` · `/me/synthese` |
+| Débiteur | `/api/debiteur/me` · `/me/dettes` · `/me/partenaires` · `/me/agent` · `/me/synthese` · `/me/paiements` · `/me/recus` |
 | Partenaire | `/api/partenaire/me` · `/me/dettes` · `/me/debiteurs` · `/me/rapport` · `/me/synthese` |
 | Agent | `/api/agent/me` · `/me/debiteurs` · `/me/dettes` · `/me/synthese` |
 
@@ -163,6 +163,86 @@ Aucun endpoint n'accepte d'identifiant en paramètre : le périmètre est dédui
 - Les réponses 401 et 403 portent un champ `code` (`token_expire`, `token_invalide`,
   `profil_non_autorise`, `compte_introuvable`) permettant de distinguer une session
   expirée d'un accès refusé
+
+### Paiement en ligne d'une dette
+
+Implémenté des deux côtés : `PaiementService` et l'onglet « Payer une dette » ici,
+`PaiementController` et `App\Services\Paiement` dans `recouvrement-app`.
+
+```http
+GET    /api/debiteur/me/paiements              → Paiement[]  (du plus récent au plus ancien)
+POST   /api/debiteur/me/paiements              → Paiement
+GET    /api/debiteur/me/paiements/{id}         → Paiement
+POST   /api/debiteur/me/paiements/{id}/annuler → Paiement
+```
+
+Corps du `POST` :
+
+```json
+{
+  "dette_id": "…",
+  "montant": 250000,
+  "moyen": "carte | orange_money | mtn_momo | paypal",
+  "telephone": "+237…",
+  "url_retour": "https://…/debiteur/paiements"
+}
+```
+
+`telephone` n'est envoyé que pour `orange_money` et `mtn_momo`. `url_retour` est l'adresse
+sur laquelle le prestataire doit renvoyer le débiteur, complétée par l'API d'un
+paramètre `?paiement={id}` : le front y reprend le suivi du statut.
+
+Ressource `Paiement` :
+
+```json
+{
+  "id": "…", "reference": "ARC-20260819-K7M2QP",
+  "dette_id": "…", "partenaire_id": "…",
+  "montant": 250000, "devise": "FCFA",
+  "moyen": "orange_money",
+  "statut": "initie | en_attente | reussi | echoue | annule",
+  "url_redirection": "https://psp…/pay/…",
+  "instruction": "Composez #150*50# pour valider",
+  "message_echec": null,
+  "notifications": [
+    {"destinataire": "admin", "canal": "email", "nom": null, "envoyee": true},
+    {"destinataire": "partenaire", "canal": "email", "nom": "Ets Nkolo", "envoyee": true}
+  ],
+  "cree_le": "…", "confirme_le": "…"
+}
+```
+
+Comportement côté serveur :
+
+- `url_redirection` est renseignée pour `carte` et `paypal`, nulle pour le mobile money,
+  qui renvoie à la place une `instruction` et le statut `en_attente`
+- Sur `initie` et `en_attente`, le front relit `GET /paiements/{id}` toutes les 4 s,
+  pendant 3 minutes au plus. Chaque lecture interroge le prestataire ; le webhook
+  `POST /api/paiements/webhook/{passerelle}` fait la même chose sans navigateur ouvert
+- Le passage à `reussi` est le **seul** moment où `montant_verse`, `solde` et
+  `dernier_versement` de la dette sont recalculés, et l'opération est idempotente :
+  un webhook arrivant après la relecture du front ne crédite pas deux fois. Le front
+  ne décrémente rien localement, il relit `/me/dettes` et `/me/synthese`
+- Une confirmation émet un `Recu` au format déjà connu du back-office, puis notifie par
+  courriel l'administration, le partenaire créancier et l'agent en charge. Le tableau
+  `notifications` dit au débiteur qui a été prévenu ; un tableau vide affiche un
+  message générique
+- Un montant supérieur au solde, ou une dette déjà soldée, sont refusés en 422
+
+### Reçus de versement
+
+```http
+GET /api/debiteur/me/recus  → Recu[]  (du plus récent au plus ancien)
+```
+
+Alimente l'onglet « Mes reçus ». La liste mêle les règlements encaissés en ligne et
+ceux saisis à la main dans le back-office (chèque, espèces, virement) : seul un
+`paiement_id` non nul distingue les premiers, ce que l'onglet signale par un badge.
+
+Passerelles : **CinetPay** couvre la carte et les deux mobile money en zone CEMAC,
+**PayPal** l'API Orders v2. Sans identifiants marchands, une passerelle **factice**
+prend le relais hors production et déroule tout le tunnel sans prestataire réel —
+c'est ce qui rend l'onglet utilisable en développement.
 
 ---
 
