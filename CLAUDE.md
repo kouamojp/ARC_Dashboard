@@ -11,7 +11,7 @@ ArchitectUI Angular is an admin dashboard template built with Angular 22 (zonele
 ```bash
 ng serve                    # Start dev server at http://localhost:4200
 ng build                    # Build for production
-npm run build:prod          # Build with base-href /architectui-angular-free/
+npm run build:prod          # Build with base-href /arcreances/
 ng test                     # Run unit tests via Karma (zoneless)
 ng lint                     # Run ESLint
 ng generate component <name> # Generate new component (uses standalone: false by default)

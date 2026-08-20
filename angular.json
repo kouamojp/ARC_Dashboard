@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "architectui-angular-free": {
+    "arcreances": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -18,7 +18,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/architectui-angular-free",
+            "outputPath": "dist/arcreances",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["src/polyfills.ts"],
@@ -92,10 +92,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "architectui-angular-free:build:production"
+              "buildTarget": "arcreances:build:production"
             },
             "development": {
-              "buildTarget": "architectui-angular-free:build:development"
+              "buildTarget": "arcreances:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -103,7 +103,7 @@
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
           "options": {
-            "buildTarget": "architectui-angular-free:build"
+            "buildTarget": "arcreances:build"
           }
         },
         "test": {

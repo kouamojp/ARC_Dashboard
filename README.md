@@ -272,10 +272,10 @@ et la consolidation par débiteur.
 npm run build
 ```
 
-Les fichiers sont produits dans `dist/architectui-angular-free/browser/` — un chemin
-hérité du template. C'est ce dossier qu'il faut servir, en réécrivant toutes les routes
-vers `index.html`, sans quoi un accès direct à `/debiteur/dettes` renverra un 404. Un
-`.htaccess` est fourni à la racine pour Apache. Pour Nginx :
+Les fichiers sont produits dans `dist/arcreances/browser/`. C'est ce dossier qu'il faut
+servir, en réécrivant toutes les routes vers `index.html`, sans quoi un accès direct à
+`/debiteur/dettes` renverra un 404. Un `.htaccess` est fourni à la racine pour Apache,
+dont le `RewriteBase` suit le `--base-href` du build. Pour Nginx :
 
 ```nginx
 location / {
@@ -293,8 +293,6 @@ une mise en production.
 | Sujet | État |
 |---|---|
 | `environment.prod.ts` | `apiUrl` vaut `/api`, une valeur de remplacement |
-| `npm run build:prod` | Conserve le `--base-href /architectui-angular-free/` du template |
-| Nom du paquet | `package.json` s'appelle encore `architectui-angular-free` |
 | Vitrine du template | Les pages de démonstration restent routées et accessibles sans authentification |
 | Avatars | Les pages de démonstration référencent des images supprimées |
 | `.widget-heading` | Une règle globale de `_header-dropdowns.scss` impose une couleur sombre à tous les widgets ; contournée là où c'était visible, pas corrigée à la source |

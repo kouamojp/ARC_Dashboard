@@ -11,16 +11,16 @@ export class DeploymentComponent {
 
   protected readonly buildSub = `npm run build:prod`;
 
-  protected readonly nginx = `location /architectui-angular-free/ {
-    try_files $uri $uri/ /architectui-angular-free/index.html;
+  protected readonly nginx = `location /arcreances/ {
+    try_files $uri $uri/ /arcreances/index.html;
 }`;
 
   protected readonly htaccess = `<IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /architectui-angular-free/
+  RewriteBase /arcreances/
   RewriteRule ^index\\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /architectui-angular-free/index.html [L]
+  RewriteRule . /arcreances/index.html [L]
 </IfModule>`;
 }
