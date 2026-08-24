@@ -1,0 +1,51 @@
+<section class="arc-bande" aria-labelledby="arc-bande-titre">
+  <div class="arc-bande__tete">
+    <span class="arc-etiquette" id="arc-bande-titre">Ancienneté du solde</span>
+
+    @if (immobilise() > 0) {
+      <span class="arc-bande__alerte">
+        <b>{{ immobilise() | montant: '' }}</b>{{ devise() }} immobilisés depuis plus de 90 jours
+      </span>
+    }
+  </div>
+
+  @if (chargement()) {
+    <div class="arc-squelette arc-squelette--bande" aria-hidden="true"></div>
+  } @else if (aDesDonnees()) {
+    <div class="arc-bande__piste">
+      @for (tranche of tranches(); track tranche.rang; let i = $index) {
+        <div
+          class="arc-bande__seg arc-bande__seg--{{ tranche.rang }}"
+          [style.flex]="tranche.montant"
+          [style.animation-delay]="retard(i)"
+          [title]="tranche.libelle + ' — ' + tranche.nombre + ' dette(s)'">
+        </div>
+      }
+    </div>
+
+    <div class="arc-bande__axe">
+      @for (tranche of tranches(); track tranche.rang) {
+        <div class="arc-bande__case" [style.flex]="tranche.montant">
+          <span class="arc-etiquette">{{ tranche.libelle }}</span>
+          <span class="arc-bande__montant">{{ tranche.montant | montant: '' }}</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="arc-bande__vide">Aucun solde en cours. Toutes les dettes suivies sont soldées.</p>
+  }
+
+  <div class="arc-bande__pied">
+    <span class="arc-etiquette">Déjà rentré</span>
+    <div
+      class="arc-bande__jauge"
+      role="progressbar"
+      [attr.aria-valuenow]="taux()"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-label="Part du montant reconnu déjà recouvrée">
+      <i [style.width.%]="taux()"></i>
+    </div>
+    <span class="arc-bande__part"><b>{{ taux() }} %</b>du montant reconnu</span>
+  </div>
+</section>

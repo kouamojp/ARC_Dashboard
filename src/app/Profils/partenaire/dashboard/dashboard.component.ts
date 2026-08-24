@@ -4,8 +4,8 @@ import { Debiteur, Dette, Partenaire, Rapport, Synthese } from '../../../core/mo
 import { AuthService } from '../../../core/services/auth.service';
 import { PartenaireService } from '../../../core/services/partenaire.service';
 import { messageErreur } from '../../../core/utils/erreur-api';
+import { LigneBarre } from '../../shared/barres-encours/barres-encours.component';
 import { consoliderParDebiteur } from '../../shared/consolidation';
-import { LigneEncours } from '../../shared/graphique-encours/graphique-encours.component';
 import { estEnRetard } from '../../shared/statut-dette';
 
 @Component({
@@ -26,16 +26,35 @@ export class PartenaireDashboardComponent {
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
 
-  readonly encours = computed<LigneEncours[]>(() =>
+  readonly encours = computed<LigneBarre[]>(() =>
     consoliderParDebiteur(this.debiteurs(), this.dettes()).map(ligne => ({
+      id: ligne.debiteur.id,
       libelle: ligne.debiteur.societe_debitrice,
-      solde: ligne.solde
+      solde: ligne.solde,
+      enRetard: ligne.enRetard > 0
     }))
   );
 
   readonly nombreEnRetard = computed(() =>
     this.dettes().filter(dette => estEnRetard(dette)).length
   );
+
+  readonly surtitre = computed(() => {
+    const nombre = this.debiteurs().length;
+    return nombre ? `Espace partenaire · ${nombre} débiteur(s)` : 'Espace partenaire';
+  });
+
+  readonly resume = computed(() => {
+    if (this.chargement()) {
+      return 'Chargement de votre portefeuille…';
+    }
+
+    const retard = this.nombreEnRetard();
+
+    return retard
+      ? `${retard} créance(s) de votre portefeuille ont dépassé leur échéance.`
+      : 'Aucune créance de votre portefeuille n\'a dépassé son échéance.';
+  });
 
   constructor() {
     this.service.synthese().subscribe({

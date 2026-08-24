@@ -4,8 +4,7 @@ import { Agent, Debiteur, Dette, Synthese } from '../../../core/models';
 import { AgentService } from '../../../core/services/agent.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { messageErreur } from '../../../core/utils/erreur-api';
-import { consoliderParDebiteur } from '../../shared/consolidation';
-import { LigneEncours } from '../../shared/graphique-encours/graphique-encours.component';
+import { construireFileRelances } from '../../shared/file-relances/file-relances.component';
 import { estEnRetard, joursDeRetard } from '../../shared/statut-dette';
 
 @Component({
@@ -25,18 +24,16 @@ export class AgentDashboardComponent {
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
 
-  readonly lignes = computed(() => consoliderParDebiteur(this.debiteurs(), this.dettes()));
-
-  readonly encours = computed<LigneEncours[]>(() =>
-    this.lignes().map(ligne => ({
-      libelle: ligne.debiteur.societe_debitrice,
-      solde: ligne.solde
-    }))
-  );
+  readonly relances = computed(() => construireFileRelances(this.debiteurs(), this.dettes()));
 
   readonly dettesEnRetard = computed(() => this.dettes().filter(dette => estEnRetard(dette)));
 
-  /** Indicateurs de performance affichés en tête de tableau de bord. */
+  readonly surtitre = computed(() => {
+    const nombre = this.debiteurs().length;
+    return nombre ? `Espace agent · ${nombre} débiteur(s) assigné(s)` : 'Espace agent';
+  });
+
+  /** Indicateurs de suivi du portefeuille. */
   readonly indicateurs = computed(() => {
     const enRetard = this.dettesEnRetard();
     const retards = enRetard
@@ -44,12 +41,27 @@ export class AgentDashboardComponent {
       .sort((a, b) => b - a);
 
     return {
-      societesARelancer: this.lignes().filter(ligne => ligne.enRetard > 0).length,
       dettesEnRetard: enRetard.length,
-      montantEnRetard: enRetard.reduce((total, dette) => total + dette.solde, 0),
-      retardMaximum: retards.length ? retards[0] : 0,
-      dossiersSoldes: this.dettes().filter(dette => dette.solde <= 0).length
+      retardMaximum: retards.length ? retards[0] : 0
     };
+  });
+
+  /**
+   * Une phrase qui dit ce qu'il y a à faire, pas ce que la page contient.
+   * Le retard le plus ancien est le seul chiffre qui décide d'un ordre du jour.
+   */
+  readonly resume = computed(() => {
+    if (this.chargement()) {
+      return 'Chargement de votre portefeuille…';
+    }
+
+    const { retardMaximum, dettesEnRetard } = this.indicateurs();
+
+    if (!dettesEnRetard) {
+      return 'Aucune échéance dépassée dans votre portefeuille.';
+    }
+
+    return `Le retard le plus ancien de votre portefeuille atteint ${retardMaximum} jour(s).`;
   });
 
   constructor() {

@@ -1,0 +1,25 @@
+@if (mouvements().length) {
+  <ul class="arc-mouv">
+    @for (mouvement of mouvements(); track mouvement.id) {
+      <li>
+        <div class="arc-mouv__date">
+          <span>{{ mouvement.jour }}</span><small>{{ mouvement.mois }}</small>
+        </div>
+        <div class="arc-mouv__quoi">
+          <strong [title]="mouvement.titre">{{ mouvement.titre }}</strong>
+          @if (mouvement.detail) {
+            <span [title]="mouvement.detail">{{ mouvement.detail }}</span>
+          } @else if (mouvement.solde !== null) {
+            <span>Solde restant {{ mouvement.solde | montant: '' }}</span>
+          }
+        </div>
+        <div class="arc-mouv__chiffres">
+          <span>{{ mouvement.verse | montant: '' }}</span>
+          <small>versé au total</small>
+        </div>
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="arc-bloc__vide">Aucun versement n'a encore été enregistré.</p>
+}

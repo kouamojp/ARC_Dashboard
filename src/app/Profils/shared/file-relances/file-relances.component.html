@@ -1,0 +1,20 @@
+@if (retenues().length) {
+  <ul class="arc-file">
+    @for (ligne of retenues(); track ligne.id) {
+      <li>
+        <div class="arc-file__retard">
+          {{ ligne.jours }}<small>jour{{ ligne.jours > 1 ? 's' : '' }}</small>
+        </div>
+        <div class="arc-file__qui">
+          <strong [title]="ligne.nom">{{ ligne.nom }}</strong>
+          <span>
+            {{ ligne.nombre }} dette(s) en retard@if (ligne.lieu) { · {{ ligne.lieu }} }
+          </span>
+        </div>
+        <div class="arc-file__solde">{{ ligne.solde | montant: '' }}</div>
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="arc-bloc__vide">Rien à relancer : aucune échéance n'est dépassée.</p>
+}

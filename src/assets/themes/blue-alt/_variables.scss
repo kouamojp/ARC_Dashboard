@@ -85,6 +85,12 @@ $theme-colors: map-merge( $theme-colors, $custom-colors);
 
 // BOOTSTRAP OVERWRITES
 
+// Roboto était chargé dans index.html sans jamais être déclaré : l'application
+// tournait en fait sur la pile système. On pose ici la superfamille IBM Plex,
+// dont le condensé sert aux montants et la chasse fixe aux étiquettes.
+$font-family-sans-serif: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-monospace: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, "Courier New", monospace;
+
 $headings-font-weight: 400;
 
 $font-size-base: 0.88rem;

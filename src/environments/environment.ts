@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   // API Laravel du projet recouvrement-app (php artisan serve).
-  apiUrl: 'http://localhost:8000/api'
+  apiUrl: "http://localhost:8000/api",
 };
 
 /*

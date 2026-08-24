@@ -1,0 +1,20 @@
+@if (retenues().length) {
+  <ul class="arc-encours">
+    @for (ligne of retenues(); track ligne.id) {
+      <li>
+        <div class="arc-encours__ligne">
+          <span class="arc-encours__nom" [title]="ligne.libelle">{{ ligne.libelle }}</span>
+          <span class="arc-encours__val">{{ ligne.solde | montant: '' }}</span>
+        </div>
+        <div
+          class="arc-encours__piste"
+          [class.est-en-retard]="ligne.enRetard"
+          [title]="ligne.enRetard ? 'Au moins une échéance dépassée' : 'À échoir'">
+          <i [style.width.%]="part(ligne.solde)"></i>
+        </div>
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="arc-bloc__vide">Aucun encours à représenter.</p>
+}

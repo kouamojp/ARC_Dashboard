@@ -8,6 +8,10 @@ import { TableDettesComponent } from './table-dettes/table-dettes.component';
 import { TableDebiteursComponent } from './table-debiteurs/table-debiteurs.component';
 import { GraphiqueRecouvrementComponent } from './graphique-recouvrement/graphique-recouvrement.component';
 import { GraphiqueEncoursComponent } from './graphique-encours/graphique-encours.component';
+import { BandeAncienneteComponent } from './bande-anciennete/bande-anciennete.component';
+import { BarresEncoursComponent } from './barres-encours/barres-encours.component';
+import { DerniersMouvementsComponent } from './derniers-mouvements/derniers-mouvements.component';
+import { FileRelancesComponent } from './file-relances/file-relances.component';
 
 /**
  * Briques communes aux trois espaces profil.
@@ -19,7 +23,11 @@ import { GraphiqueEncoursComponent } from './graphique-encours/graphique-encours
     TableDettesComponent,
     TableDebiteursComponent,
     GraphiqueRecouvrementComponent,
-    GraphiqueEncoursComponent
+    GraphiqueEncoursComponent,
+    BandeAncienneteComponent,
+    BarresEncoursComponent,
+    DerniersMouvementsComponent,
+    FileRelancesComponent
   ],
   imports: [
     SharedModule,
@@ -32,7 +40,11 @@ import { GraphiqueEncoursComponent } from './graphique-encours/graphique-encours
     TableDettesComponent,
     TableDebiteursComponent,
     GraphiqueRecouvrementComponent,
-    GraphiqueEncoursComponent
+    GraphiqueEncoursComponent,
+    BandeAncienneteComponent,
+    BarresEncoursComponent,
+    DerniersMouvementsComponent,
+    FileRelancesComponent
   ]
 })
 export class ProfilsSharedModule { }

@@ -1,103 +1,68 @@
 <app-page-title
+  [eyebrow]="surtitre()"
   [heading]="profil()?.nom || 'Tableau de bord'"
-  [subheading]="'Vos débiteurs et l\'état de vos créances.'"
-  [icon]="'pe-7s-graph text-success'">
+  [subheading]="resume()">
+  <a routerLink="/partenaire/debiteurs" class="btn btn-outline-secondary">Portefeuille</a>
+  <a routerLink="/partenaire/dettes" class="btn btn-primary">Voir les créances</a>
 </app-page-title>
 
 @if (erreur()) {
   <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
 }
 
-<app-synthese-cartes [synthese]="synthese()" [chargement]="chargement()"></app-synthese-cartes>
+<div class="arc-feuille">
+  <app-bande-anciennete
+    [dettes]="dettes()"
+    [synthese]="synthese()"
+    [chargement]="chargement()">
+  </app-bande-anciennete>
 
-@if (nombreEnRetard()) {
-  <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
-    <span>
-      <strong>{{ nombreEnRetard() }} créance(s) en retard</strong> dans votre portefeuille.
-    </span>
-    <a routerLink="/partenaire/dettes" class="btn btn-sm btn-warning">Voir les créances</a>
-  </div>
-}
+  <app-synthese-cartes
+    [synthese]="synthese()"
+    [chargement]="chargement()"
+    [enRetard]="nombreEnRetard()">
+  </app-synthese-cartes>
 
-<div class="row">
-  <div class="col-lg-4">
-    <div class="main-card mb-3 card">
-      <div class="card-header">Avancement du recouvrement</div>
-      <div class="card-body">
-        <app-graphique-recouvrement [synthese]="synthese()"></app-graphique-recouvrement>
+  <div class="arc-corps arc-corps--egal">
+    <section class="arc-bloc">
+      <div class="arc-bloc__tete">
+        <span class="arc-etiquette">Encours par débiteur</span>
+        <a routerLink="/partenaire/debiteurs">Voir le portefeuille</a>
       </div>
-    </div>
-  </div>
+      <app-barres-encours [lignes]="encours()"></app-barres-encours>
+    </section>
 
-  <div class="col-lg-8">
-    <div class="main-card mb-3 card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Encours par débiteur</span>
-        <a routerLink="/partenaire/debiteurs" class="btn btn-sm btn-primary">Voir le portefeuille</a>
+    <section class="arc-bloc">
+      <div class="arc-bloc__tete">
+        <span class="arc-etiquette">Rapport d'activité</span>
       </div>
-      <div class="card-body">
-        <app-graphique-encours [lignes]="encours()"></app-graphique-encours>
-      </div>
-    </div>
-  </div>
-</div>
 
-<div class="row">
-  <div class="col-lg-6">
-    <div class="main-card mb-3 card">
-      <div class="card-header">Mon entreprise</div>
-      <div class="card-body">
-        @if (profil(); as p) {
-          <dl class="row mb-0">
-            <dt class="col-sm-4">Nom</dt>
-            <dd class="col-sm-8">{{ p.nom }}</dd>
-            <dt class="col-sm-4">Secteur</dt>
-            <dd class="col-sm-8">{{ p.secteur }}</dd>
-            <dt class="col-sm-4">Adresse</dt>
-            <dd class="col-sm-8">{{ p.adresse }}</dd>
-            <dt class="col-sm-4">Ville</dt>
-            <dd class="col-sm-8">{{ p.ville }}</dd>
-            <dt class="col-sm-4">Téléphone</dt>
-            <dd class="col-sm-8">{{ p.telephone }}</dd>
-            <dt class="col-sm-4">Email</dt>
-            <dd class="col-sm-8">{{ p.email }}</dd>
-          </dl>
-        } @else {
-          <p class="text-muted mb-0">Chargement…</p>
+      @if (rapport(); as r) {
+        <dl class="arc-releve">
+          <div><dt>Créance suivie</dt><dd>{{ r.montant_creance | montant: '' }}</dd></div>
+          <div><dt>Dossiers transmis</dt><dd>{{ r.nbre_dossier_transmi }}</dd></div>
+          <div><dt>Dossiers actifs</dt><dd>{{ r.nbre_dossier_actif }}</dd></div>
+          <div><dt>Dossiers localisés</dt><dd>{{ r.nbre_dossier_localiser }}</dd></div>
+          <div><dt>Dossiers en paiement</dt><dd>{{ r.nbre_dossier_payement }}</dd></div>
+          <div><dt>Négociations en cours</dt><dd>{{ r.negoc_en_cours }}</dd></div>
+          <div><dt>Protocoles signés</dt><dd>{{ r.protocol_signe }}</dd></div>
+        </dl>
+        @if (r.commentaire) {
+          <p class="arc-bloc__vide mt-3">{{ r.commentaire }}</p>
         }
-      </div>
-    </div>
+      } @else {
+        <p class="arc-bloc__vide">Aucun rapport n'a encore été produit pour votre compte.</p>
+      }
+    </section>
   </div>
 
-  <div class="col-lg-6">
-    <div class="main-card mb-3 card">
-      <div class="card-header">Rapport d'activité</div>
-      <div class="card-body">
-        @if (rapport(); as r) {
-          <dl class="row mb-0">
-            <dt class="col-7">Créance suivie</dt>
-            <dd class="col-5 text-end">{{ r.montant_creance | montant: r.devise }}</dd>
-            <dt class="col-7">Dossiers transmis</dt>
-            <dd class="col-5 text-end">{{ r.nbre_dossier_transmi }}</dd>
-            <dt class="col-7">Dossiers actifs</dt>
-            <dd class="col-5 text-end">{{ r.nbre_dossier_actif }}</dd>
-            <dt class="col-7">Dossiers localisés</dt>
-            <dd class="col-5 text-end">{{ r.nbre_dossier_localiser }}</dd>
-            <dt class="col-7">Dossiers en paiement</dt>
-            <dd class="col-5 text-end">{{ r.nbre_dossier_payement }}</dd>
-            <dt class="col-7">Négociations en cours</dt>
-            <dd class="col-5 text-end">{{ r.negoc_en_cours }}</dd>
-            <dt class="col-7">Protocoles signés</dt>
-            <dd class="col-5 text-end">{{ r.protocol_signe }}</dd>
-          </dl>
-          @if (r.commentaire) {
-            <hr>
-            <p class="text-muted mb-0 small">{{ r.commentaire }}</p>
-          }
-        } @else {
-          <p class="text-muted mb-0">Aucun rapport n'a encore été produit pour votre compte.</p>
-        }
-      </div>
-    </div>
-  </div>
+  @if (profil(); as p) {
+    <dl class="arc-fiche">
+      <div><dt>Secteur</dt><dd>{{ p.secteur }}</dd></div>
+      <div><dt>Ville</dt><dd>{{ p.ville }}</dd></div>
+      <div><dt>Adresse</dt><dd>{{ p.adresse }}</dd></div>
+      <div><dt>Téléphone</dt><dd>{{ p.telephone }}</dd></div>
+      <div><dt>Email</dt><dd>{{ p.email }}</dd></div>
+    </dl>
+  }
 </div>

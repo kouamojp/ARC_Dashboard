@@ -1,14 +1,47 @@
 <app-page-title
+  [eyebrow]="surtitre()"
   [heading]="profil() ? profil()!.prenom + ' ' + profil()!.nom : 'Tableau de bord'"
-  [subheading]="'Débiteurs assignés et dettes en cours de recouvrement.'"
-  [icon]="'pe-7s-graph text-success'">
+  [subheading]="resume()">
+  <a routerLink="/agent/debiteurs" class="btn btn-outline-secondary">Mes débiteurs</a>
+  @if (indicateurs().dettesEnRetard) {
+    <a routerLink="/agent/dettes" class="btn btn-danger">Traiter les retards</a>
+  }
 </app-page-title>
 
 @if (erreur()) {
   <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
 }
 
-<app-synthese-cartes [synthese]="synthese()" [chargement]="chargement()"></app-synthese-cartes>
+<div class="arc-feuille">
+  <app-bande-anciennete
+    [dettes]="dettes()"
+    [synthese]="synthese()"
+    [chargement]="chargement()">
+  </app-bande-anciennete>
+
+  <app-synthese-cartes
+    [synthese]="synthese()"
+    [chargement]="chargement()"
+    [enRetard]="indicateurs().dettesEnRetard">
+  </app-synthese-cartes>
+
+  <div class="arc-corps">
+    <section class="arc-bloc">
+      <div class="arc-bloc__tete">
+        <span class="arc-etiquette">À relancer en priorité</span>
+        <a routerLink="/agent/dettes">Toutes les dettes</a>
+      </div>
+      <app-file-relances [lignes]="relances()"></app-file-relances>
+    </section>
+
+    <section class="arc-bloc">
+      <div class="arc-bloc__tete">
+        <span class="arc-etiquette">Derniers mouvements</span>
+      </div>
+      <app-derniers-mouvements [dettes]="dettes()" [debiteurs]="debiteurs()"></app-derniers-mouvements>
+    </section>
+  </div>
+</div>
 
 @if (!chargement() && !debiteurs().length) {
   <div class="alert alert-info" role="alert">
@@ -16,71 +49,3 @@
     en renseignant l'agent de recouvrement sur la fiche de chaque débiteur.
   </div>
 }
-
-<!-- Indicateurs de performance -->
-<div class="row">
-  <div class="col-md-6 col-xl-3">
-    <div class="main-card mb-3 card">
-      <div class="card-body text-center">
-        <div class="widget-numbers text-danger">{{ indicateurs().dettesEnRetard }}</div>
-        <div class="text-muted small">Dette(s) en retard</div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6 col-xl-3">
-    <div class="main-card mb-3 card">
-      <div class="card-body text-center">
-        <div class="widget-numbers text-danger">{{ indicateurs().montantEnRetard | montant }}</div>
-        <div class="text-muted small">Montant immobilisé</div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6 col-xl-3">
-    <div class="main-card mb-3 card">
-      <div class="card-body text-center">
-        <div class="widget-numbers text-warning">{{ indicateurs().societesARelancer }}</div>
-        <div class="text-muted small">Société(s) à relancer</div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6 col-xl-3">
-    <div class="main-card mb-3 card">
-      <div class="card-body text-center">
-        <div class="widget-numbers text-success">{{ indicateurs().dossiersSoldes }}</div>
-        <div class="text-muted small">Dossier(s) soldé(s)</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-@if (indicateurs().retardMaximum) {
-  <div class="alert alert-danger d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
-    <span>
-      Le retard le plus ancien atteint <strong>{{ indicateurs().retardMaximum }} jour(s)</strong>.
-    </span>
-    <a routerLink="/agent/dettes" class="btn btn-sm btn-danger">Traiter les retards</a>
-  </div>
-}
-
-<div class="row">
-  <div class="col-lg-4">
-    <div class="main-card mb-3 card">
-      <div class="card-header">Avancement du recouvrement</div>
-      <div class="card-body">
-        <app-graphique-recouvrement [synthese]="synthese()"></app-graphique-recouvrement>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-8">
-    <div class="main-card mb-3 card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Encours par débiteur</span>
-        <a routerLink="/agent/debiteurs" class="btn btn-sm btn-primary">Voir mes débiteurs</a>
-      </div>
-      <div class="card-body">
-        <app-graphique-encours [lignes]="encours()"></app-graphique-encours>
-      </div>
-    </div>
-  </div>
-</div>

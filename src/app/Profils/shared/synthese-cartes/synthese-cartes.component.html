@@ -1,91 +1,44 @@
 @if (chargement()) {
-  <div class="row">
+  <div class="arc-chiffres">
     @for (i of [1, 2, 3, 4]; track i) {
-      <div class="col-md-6 col-xl-3">
-        <div class="card mb-3 widget-content">
-          <div class="widget-content-wrapper">
-            <div class="widget-content-left">
-              <div class="widget-heading placeholder-glow">
-                <span class="placeholder col-7"></span>
-              </div>
-              <div class="widget-subheading placeholder-glow">
-                <span class="placeholder col-5"></span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="arc-chiffre">
+        <span class="arc-etiquette">Chargement</span>
+        <div class="arc-squelette arc-squelette--chiffre" aria-hidden="true"></div>
       </div>
     }
   </div>
 } @else if (synthese(); as s) {
-  <div class="row">
-    <div class="col-md-6 col-xl-3">
-      <div class="card mb-3 widget-content bg-midnight-bloom">
-        <div class="widget-content-wrapper text-white">
-          <div class="widget-content-left">
-            <div class="widget-heading text-white">Montant réclamé</div>
-            <div class="widget-subheading text-white opacity-75">Sur {{ s.nombre_dettes }} dette(s)</div>
-          </div>
-          <div class="widget-content-right">
-            <div class="widget-numbers text-white"><span>{{ s.montant_reclame | montant: '' }}</span> <small class="fs-6 fw-normal opacity-75 ms-1">{{ s.devise }}</small></div>
-          </div>
-        </div>
+  <div class="arc-chiffres">
+    <div class="arc-chiffre">
+      <span class="arc-etiquette">Réclamé</span>
+      <div class="arc-chiffre__valeur">
+        {{ s.montant_reclame | montant: '' }}<span class="arc-chiffre__devise">{{ s.devise }}</span>
       </div>
+      <div class="arc-chiffre__note">Sur {{ s.nombre_dettes }} dette(s)</div>
     </div>
 
-    <div class="col-md-6 col-xl-3">
-      <div class="card mb-3 widget-content bg-arielle-smile">
-        <div class="widget-content-wrapper text-white">
-          <div class="widget-content-left">
-            <div class="widget-heading text-white">Montant reconnu</div>
-            <div class="widget-subheading text-white opacity-75">Base de recouvrement</div>
-          </div>
-          <div class="widget-content-right">
-            <div class="widget-numbers text-white"><span>{{ s.montant_reconnu | montant: '' }}</span> <small class="fs-6 fw-normal opacity-75 ms-1">{{ s.devise }}</small></div>
-          </div>
-        </div>
+    <div class="arc-chiffre">
+      <span class="arc-etiquette">Reconnu</span>
+      <div class="arc-chiffre__valeur">
+        {{ s.montant_reconnu | montant: '' }}<span class="arc-chiffre__devise">{{ s.devise }}</span>
       </div>
+      <div class="arc-chiffre__note">Base du recouvrement</div>
     </div>
 
-    <div class="col-md-6 col-xl-3">
-      <div class="card mb-3 widget-content bg-grow-early">
-        <div class="widget-content-wrapper text-white">
-          <div class="widget-content-left">
-            <div class="widget-heading text-white">Déjà versé</div>
-            <div class="widget-subheading text-white opacity-75">{{ s.taux_recouvrement }} % du reconnu</div>
-          </div>
-          <div class="widget-content-right">
-            <div class="widget-numbers text-white"><span>{{ s.montant_verse | montant: '' }}</span> <small class="fs-6 fw-normal opacity-75 ms-1">{{ s.devise }}</small></div>
-          </div>
-        </div>
+    <div class="arc-chiffre arc-chiffre--sortie">
+      <span class="arc-etiquette">Versé</span>
+      <div class="arc-chiffre__valeur">
+        {{ s.montant_verse | montant: '' }}<span class="arc-chiffre__devise">{{ s.devise }}</span>
       </div>
+      <div class="arc-chiffre__note">{{ s.taux_recouvrement }} % du reconnu</div>
     </div>
 
-    <div class="col-md-6 col-xl-3">
-      <div class="card mb-3 widget-content bg-love-kiss">
-        <div class="widget-content-wrapper text-white">
-          <div class="widget-content-left">
-            <div class="widget-heading text-white">Solde restant</div>
-            <div class="widget-subheading text-white opacity-75">Reconnu moins versé</div>
-          </div>
-          <div class="widget-content-right">
-            <div class="widget-numbers text-white"><span>{{ s.solde | montant: '' }}</span> <small class="fs-6 fw-normal opacity-75 ms-1">{{ s.devise }}</small></div>
-          </div>
-        </div>
+    <div class="arc-chiffre arc-chiffre--du">
+      <span class="arc-etiquette">Solde</span>
+      <div class="arc-chiffre__valeur">
+        {{ s.solde | montant: '' }}<span class="arc-chiffre__devise">{{ s.devise }}</span>
       </div>
-    </div>
-  </div>
-
-  <div class="d-flex align-items-center mb-4">
-    <div class="flex-grow-1">
-      <div class="progress progress-bar-sm" role="progressbar"
-           [attr.aria-valuenow]="s.taux_recouvrement" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar bg-success" [style.width.%]="s.taux_recouvrement"></div>
-      </div>
-    </div>
-    <div class="ms-3 text-nowrap">
-      <strong>{{ s.taux_recouvrement }} %</strong>
-      <span class="text-muted small ms-1">recouvré</span>
+      <div class="arc-chiffre__note">{{ note() }}</div>
     </div>
   </div>
 }

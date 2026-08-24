@@ -1,0 +1,712 @@
+// TABLEAU DE BORD — espaces débiteur, partenaire et agent
+//
+// Le recouvrement se lit sur l'axe du temps : une créance vaut par son montant
+// autant que par son ancienneté. La mise en page découle de ce constat.
+//
+//   - une seule feuille blanche porte tout le tableau de bord, structurée par
+//     des filets plutôt que par des cartes flottantes ;
+//   - un seul élément saturé, la bande d'ancienneté, qui étale le solde de
+//     « à échoir » à « plus de 90 jours » ;
+//   - la couleur n'est jamais décorative : elle dit versé, à échoir ou en
+//     retard, et rien d'autre.
+
+:root {
+  // Couleurs. Dérivées du bleu de marque ($brand : #033C73).
+  --arc-encre: #0b2545;      // fond de la bande, chiffres
+  --arc-navy: #033c73;       // bleu de marque, liens et actions
+  --arc-recouvre: #1f7a5c;   // argent rentré
+  --arc-retard: #b3322f;     // impayé
+  --arc-brume: #e4e8ef;      // filets, pistes vides
+  --arc-ardoise: #5a6781;    // texte secondaire
+
+  // Échelle de chauffe de la bande : du bleu « pas encore un problème »
+  // au rouge « immobilisé depuis plus de trois mois ».
+  --arc-age-0: #35618f;
+  --arc-age-1: #e8b57a;
+  --arc-age-2: #db8f42;
+  --arc-age-3: #c75f35;
+  --arc-age-4: #b3322f;
+
+  // Trois registres d'une même superfamille : condensé pour les montants
+  // (un montant FCFA fait couramment neuf chiffres), romain pour le texte,
+  // chasse fixe pour les étiquettes et l'axe.
+  --arc-chiffre: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --arc-texte: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --arc-etiquette: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+}
+
+// ---------------------------------------------------------------- étiquettes
+
+.arc-etiquette {
+  font-family: var(--arc-etiquette);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--arc-ardoise);
+}
+
+// ------------------------------------------------------------- en-tête de page
+//
+// Reprend le composant `app-page-title` du gabarit, débarrassé de sa vignette
+// d'icône : sur un tableau de bord, l'icône ne distinguait rien.
+
+.app-page-title {
+  // Le fond translucide du gabarit dessinait une bande sans rien y poser.
+  background: none !important;
+
+  .page-title-wrapper {
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+  }
+
+  .page-title-heading {
+    align-items: flex-end;
+    font-family: var(--arc-chiffre);
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    line-height: 1.1;
+    color: var(--arc-encre);
+  }
+
+  .page-title-eyebrow {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .page-title-subheading {
+    font-family: var(--arc-texte);
+    font-size: 14px;
+    color: var(--arc-ardoise);
+    opacity: 1;
+    padding-top: 4px;
+  }
+
+  .page-title-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+}
+
+// ------------------------------------------------------------------ la feuille
+
+.arc-feuille {
+  background: #fff;
+  border: 1px solid var(--arc-brume);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+// -------------------------------------------------- signature : bande d'ancienneté
+
+.arc-bande {
+  background: var(--arc-encre);
+  color: #fff;
+  padding: 22px 26px 20px;
+
+  &__tete {
+    display: flex;
+    align-items: baseline;
+    gap: 10px 18px;
+    flex-wrap: wrap;
+
+    .arc-etiquette {
+      color: rgba(255, 255, 255, .62);
+    }
+  }
+
+  &__alerte {
+    margin-left: auto;
+    font-size: 13px;
+    color: rgba(255, 255, 255, .7);
+
+    b {
+      font-family: var(--arc-chiffre);
+      font-size: 24px;
+      font-weight: 600;
+      color: #f0a29d;
+      font-variant-numeric: tabular-nums;
+      margin-right: 5px;
+    }
+  }
+
+  &__piste {
+    display: flex;
+    gap: 2px;
+    margin-top: 16px;
+    height: 54px;
+  }
+
+  &__seg {
+    border-radius: 2px;
+    min-width: 4px;
+    transform-origin: left center;
+    animation: arc-pousse .5s cubic-bezier(.22, .9, .3, 1) both;
+
+    &--0 { background: var(--arc-age-0); }
+    &--1 { background: var(--arc-age-1); }
+    &--2 { background: var(--arc-age-2); }
+    &--3 { background: var(--arc-age-3); }
+    &--4 { background: var(--arc-age-4); }
+  }
+
+  &__axe {
+    display: flex;
+    gap: 2px;
+    margin-top: 9px;
+  }
+
+  &__case {
+    overflow: hidden;
+    white-space: nowrap;
+    min-width: 4px;
+    padding-right: 8px;
+
+    .arc-etiquette {
+      display: block;
+      font-size: 10px;
+      color: rgba(255, 255, 255, .55);
+    }
+  }
+
+  &__montant {
+    display: block;
+    margin-top: 1px;
+    font-family: var(--arc-chiffre);
+    font-size: 17px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, .92);
+  }
+
+  &__pied {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+
+    .arc-etiquette {
+      color: rgba(255, 255, 255, .62);
+    }
+  }
+
+  &__jauge {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .14);
+    overflow: hidden;
+
+    i {
+      display: block;
+      height: 100%;
+      border-radius: 2px;
+      background: #2fa37a;
+      transform-origin: left;
+      animation: arc-jauge .7s .35s cubic-bezier(.22, .9, .3, 1) both;
+    }
+  }
+
+  &__part {
+    font-size: 13px;
+    color: rgba(255, 255, 255, .7);
+    white-space: nowrap;
+
+    b {
+      font-family: var(--arc-chiffre);
+      font-size: 19px;
+      font-weight: 600;
+      color: #6fd3ac;
+      font-variant-numeric: tabular-nums;
+      margin-right: 4px;
+    }
+  }
+
+  &__vide {
+    margin: 16px 0 0;
+    color: rgba(255, 255, 255, .6);
+  }
+}
+
+@keyframes arc-pousse {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes arc-jauge {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+// ------------------------------------------------------------ rangée de chiffres
+
+.arc-chiffres {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--arc-brume);
+}
+
+.arc-chiffre {
+  padding: 20px 24px;
+  border-left: 1px solid var(--arc-brume);
+
+  &:first-child {
+    border-left: 0;
+  }
+
+  &__valeur {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-top: 8px;
+    font-family: var(--arc-chiffre);
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    color: var(--arc-encre);
+  }
+
+  &__devise {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--arc-ardoise);
+    letter-spacing: .02em;
+  }
+
+  &__note {
+    margin-top: 5px;
+    font-size: 12.5px;
+    color: var(--arc-ardoise);
+  }
+
+  &--sortie &__valeur { color: var(--arc-recouvre); }
+  &--du &__valeur { color: var(--arc-retard); }
+}
+
+// ------------------------------------------------------------------- les blocs
+
+.arc-corps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+
+  &--egal {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.arc-bloc {
+  padding: 22px 24px 24px;
+  border-left: 1px solid var(--arc-brume);
+  min-width: 0;
+
+  &:first-child {
+    border-left: 0;
+  }
+
+  &__tete {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    a {
+      margin-left: auto;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--arc-navy);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__vide {
+    margin: 0;
+    color: var(--arc-ardoise);
+  }
+}
+
+// Bandeau d'identité, en pied de feuille : l'information de contact a sa place
+// sur un tableau de bord, mais pas en tête.
+.arc-fiche {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 36px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--arc-brume);
+  background: #fbfcfd;
+
+  > div {
+    min-width: 0;
+  }
+
+  dt {
+    font-family: var(--arc-etiquette);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--arc-ardoise);
+  }
+
+  dd {
+    margin: 2px 0 0;
+    font-weight: 500;
+    color: var(--arc-encre);
+  }
+}
+
+// -------------------------------------------------------- file des relances
+
+.arc-file {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 0;
+    border-top: 1px solid var(--arc-brume);
+
+    &:first-child {
+      border-top: 0;
+    }
+  }
+
+  &__retard {
+    flex: none;
+    width: 52px;
+    text-align: right;
+    line-height: 1;
+    font-family: var(--arc-chiffre);
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--arc-retard);
+
+    small {
+      display: block;
+      margin-top: 3px;
+      font-family: var(--arc-etiquette);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      color: var(--arc-ardoise);
+    }
+  }
+
+  &__qui {
+    min-width: 0;
+    flex: 1;
+
+    strong {
+      display: block;
+      font-weight: 600;
+      color: var(--arc-encre);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    span {
+      font-size: 12.5px;
+      color: var(--arc-ardoise);
+    }
+  }
+
+  &__solde {
+    font-family: var(--arc-chiffre);
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--arc-encre);
+    white-space: nowrap;
+  }
+}
+
+// ------------------------------------------------------- derniers mouvements
+
+.arc-mouv {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 0;
+    border-top: 1px solid var(--arc-brume);
+
+    &:first-child {
+      border-top: 0;
+    }
+  }
+
+  &__date {
+    flex: none;
+    width: 44px;
+    text-align: center;
+    line-height: 1;
+
+    span {
+      display: block;
+      font-family: var(--arc-chiffre);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--arc-encre);
+    }
+
+    small {
+      display: block;
+      margin-top: 3px;
+      font-family: var(--arc-etiquette);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      color: var(--arc-ardoise);
+    }
+  }
+
+  &__quoi {
+    min-width: 0;
+    flex: 1;
+
+    strong {
+      display: block;
+      font-weight: 600;
+      color: var(--arc-encre);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    span {
+      display: block;
+      font-size: 12.5px;
+      color: var(--arc-ardoise);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__chiffres {
+    flex: none;
+    text-align: right;
+
+    span {
+      display: block;
+      line-height: 1.1;
+      font-family: var(--arc-chiffre);
+      font-size: 18px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--arc-recouvre);
+    }
+
+    small {
+      font-family: var(--arc-etiquette);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--arc-ardoise);
+    }
+  }
+}
+
+// ------------------------------------------------------ encours par débiteur
+
+.arc-encours {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    padding: 9px 0;
+    border-top: 1px solid var(--arc-brume);
+
+    &:first-child {
+      border-top: 0;
+    }
+  }
+
+  &__ligne {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  &__nom {
+    min-width: 0;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    color: var(--arc-encre);
+  }
+
+  &__val {
+    font-family: var(--arc-chiffre);
+    font-size: 16px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--arc-encre);
+  }
+
+  &__piste {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--arc-brume);
+    overflow: hidden;
+
+    i {
+      display: block;
+      height: 100%;
+      border-radius: 3px;
+      background: var(--arc-navy);
+    }
+
+    &.est-en-retard i {
+      background: var(--arc-retard);
+    }
+  }
+}
+
+// ------------------------------------------------------- relevé (dl en colonnes)
+
+.arc-releve {
+  margin: 0;
+
+  > div {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--arc-brume);
+
+    &:first-child {
+      border-top: 0;
+    }
+  }
+
+  dt {
+    flex: 1;
+    min-width: 0;
+    font-weight: 400;
+    color: var(--arc-ardoise);
+  }
+
+  dd {
+    margin: 0;
+    font-family: var(--arc-chiffre);
+    font-size: 17px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--arc-encre);
+    white-space: nowrap;
+  }
+}
+
+// ------------------------------------------------------------------ squelette
+
+.arc-squelette {
+  border-radius: 3px;
+  background: var(--arc-brume);
+  animation: arc-respire 1.4s ease-in-out infinite;
+
+  &--bande {
+    height: 54px;
+    margin-top: 16px;
+    background: rgba(255, 255, 255, .12);
+  }
+
+  &--chiffre {
+    height: 30px;
+    margin-top: 8px;
+    max-width: 160px;
+  }
+}
+
+@keyframes arc-respire {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+
+// ------------------------------------------------------------------ responsive
+
+@media (max-width: 1199px) {
+  .arc-corps,
+  .arc-corps--egal {
+    grid-template-columns: 1fr;
+  }
+
+  .arc-bloc {
+    border-left: 0;
+    border-top: 1px solid var(--arc-brume);
+
+    &:first-child {
+      border-top: 0;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .arc-chiffres {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .arc-chiffre {
+    &:nth-child(odd) {
+      border-left: 0;
+    }
+
+    &:nth-child(n + 3) {
+      border-top: 1px solid var(--arc-brume);
+    }
+  }
+
+  .app-page-title .page-title-heading {
+    font-size: 26px;
+  }
+
+  .arc-bande {
+    padding: 18px 16px 16px;
+
+    &__axe {
+      display: none; // sous 768px les cases deviennent illisibles ; la bande reste.
+    }
+
+    &__pied {
+      flex-wrap: wrap;
+    }
+  }
+
+  .arc-bloc,
+  .arc-chiffre {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arc-bande__seg,
+  .arc-bande__jauge i,
+  .arc-squelette {
+    animation: none;
+  }
+}

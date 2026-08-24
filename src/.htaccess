@@ -1,38 +1,166 @@
+# =============================================================================
+# ARCréances — Front Angular (SPA)
+# Production : http://app-arcreances.proditech-digital.com/
+#
+# Déploiement : copier le CONTENU de dist/arcreances/browser/ à la racine
+#               du sous-domaine (ce fichier compris).
+# Build       : ng build --configuration production      (base href = "/")
+# Prérequis   : mod_rewrite actif + AllowOverride All sur le vhost.
+# =============================================================================
+
+Options -MultiViews -Indexes
+DirectoryIndex index.html
+
+# -----------------------------------------------------------------------------
+# 1. Redirection HTTPS — à décommenter dès que le certificat SSL est en place
+# -----------------------------------------------------------------------------
+# <IfModule mod_rewrite.c>
+#   RewriteEngine On
+#   RewriteCond %{HTTPS} !=on
+#   RewriteCond %{HTTP:X-Forwarded-Proto} !https
+#   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
+# -----------------------------------------------------------------------------
+# 2. Routage Angular (HTML5 pushState)
+# -----------------------------------------------------------------------------
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /arcreances/
-  
-  # Don't rewrite files or directories
+  RewriteBase /
+
+  # Conserver l'en-tête Authorization (JWT Bearer) derrière CGI/FastCGI
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+  # Ne jamais capturer les appels API servis par le même hôte
+  RewriteRule ^api(/|$) - [L]
+
+  # Compatibilité : anciens liens de l'époque du déploiement en sous-dossier
+  # (http://.../arcreances/xxx -> http://.../xxx). Rattrape aussi un build
+  # publié par erreur avec --base-href /arcreances/.
+  RewriteRule ^arcreances/?(.*)$ /$1 [L,R=301]
+
+  # Laisser passer les fichiers et répertoires réellement présents
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # Rewrite everything else to index.html to allow html5 state links
+  # Un fichier statique absent doit renvoyer un vrai 404, jamais index.html :
+  # sinon le navigateur reçoit du HTML à la place d'un .js et l'app plante
+  # sur "Unexpected token '<'".
+  RewriteRule \.(js|mjs|css|map|json|txt|xml|ico|png|jpe?g|gif|svg|webp|avif|woff2?|ttf|otf|eot|pdf|zip|mp4|webm)$ - [L,R=404]
+
+  # Tout le reste est une route Angular -> index.html
   RewriteRule ^ index.html [L]
 </IfModule>
 
-# Enable CORS for fonts
-<FilesMatch "\.(ttf|ttc|otf|eot|woff|woff2|font.css|css|js)$">
-  Header set Access-Control-Allow-Origin "*"
-</FilesMatch>
-
-# Proper MIME types
+# -----------------------------------------------------------------------------
+# 3. Types MIME (certains hébergements mutualisés sont incomplets)
+# -----------------------------------------------------------------------------
 <IfModule mod_mime.c>
-  AddType application/javascript js
-  AddType text/css css
-  AddType application/font-woff2 woff2
-  AddType application/font-woff woff
+  AddType text/javascript              js mjs
+  AddType text/css                     css
+  AddType application/json             json map
+  AddType image/svg+xml                svg svgz
+  AddType image/webp                   webp
+  AddType font/woff                    woff
+  AddType font/woff2                   woff2
+  AddType font/ttf                     ttf
+  AddType font/otf                     otf
   AddType application/vnd.ms-fontobject eot
-  AddType font/ttf ttf
-  AddType font/otf otf
+  AddCharset UTF-8 .js .css .json .html .svg
 </IfModule>
 
-# Gzip compression
+# -----------------------------------------------------------------------------
+# 4. Compression
+# -----------------------------------------------------------------------------
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/plain
-  AddOutputFilterByType DEFLATE text/html
-  AddOutputFilterByType DEFLATE text/css
-  AddOutputFilterByType DEFLATE application/javascript
-  AddOutputFilterByType DEFLATE application/json
-  AddOutputFilterByType DEFLATE application/xml
+  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css
+  AddOutputFilterByType DEFLATE text/javascript application/javascript application/x-javascript
+  AddOutputFilterByType DEFLATE application/json application/xml application/xhtml+xml
+  AddOutputFilterByType DEFLATE image/svg+xml application/vnd.ms-fontobject
+  AddOutputFilterByType DEFLATE font/ttf font/otf
+  # Les .woff/.woff2 sont déjà compressés : ne pas les repasser en gzip.
 </IfModule>
+
+# -----------------------------------------------------------------------------
+# 5. Cache
+#    - index.html : jamais mis en cache (sinon l'utilisateur garde un vieux
+#      index qui référence des bundles supprimés -> écran blanc après déploiement)
+#    - bundles hachés (main-XXXXXXXX.js) : immuables 1 an
+#    - assets non hachés (src/assets/**) : 7 jours
+# -----------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|webmanifest)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+
+  # Fichiers produits par le builder Angular : nom-HASH.ext
+  <FilesMatch "-[A-Za-z0-9]{8,}\.(js|mjs|css|woff2?|ttf|otf|eot|svg|png|jpe?g|gif|webp|ico)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault                        "access plus 7 days"
+  ExpiresByType text/html               "access plus 0 seconds"
+  ExpiresByType application/json        "access plus 0 seconds"
+  ExpiresByType text/css                "access plus 7 days"
+  ExpiresByType text/javascript         "access plus 7 days"
+  ExpiresByType application/javascript  "access plus 7 days"
+  ExpiresByType image/png               "access plus 30 days"
+  ExpiresByType image/jpeg              "access plus 30 days"
+  ExpiresByType image/gif               "access plus 30 days"
+  ExpiresByType image/webp              "access plus 30 days"
+  ExpiresByType image/svg+xml           "access plus 30 days"
+  ExpiresByType image/x-icon            "access plus 30 days"
+  ExpiresByType font/woff               "access plus 1 year"
+  ExpiresByType font/woff2              "access plus 1 year"
+  ExpiresByType font/ttf                "access plus 1 year"
+  ExpiresByType font/otf                "access plus 1 year"
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 6. Polices : CORS ouvert (Font Awesome chargé depuis les CSS)
+# -----------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  <FilesMatch "\.(ttf|ttc|otf|eot|woff|woff2)$">
+    Header set Access-Control-Allow-Origin "*"
+  </FilesMatch>
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 7. En-têtes de sécurité
+#    (HSTS volontairement absent tant que le site est servi en HTTP)
+# -----------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+  Header always unset X-Powered-By
+  Header unset Server
+</IfModule>
+ServerSignature Off
+
+# -----------------------------------------------------------------------------
+# 8. Fichiers à ne pas exposer
+# -----------------------------------------------------------------------------
+<FilesMatch "(^\.|\.(map|md|log|json\.bak|bak|ini|sh|yml|yaml)$)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+# Exception : les manifestes nécessaires au fonctionnement de l'app
+<FilesMatch "^(manifest\.webmanifest|site\.webmanifest)$">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+</FilesMatch>
